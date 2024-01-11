@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### propertice data ###
+src/main/resources/application.yml
