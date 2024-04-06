@@ -15,7 +15,7 @@ public class AWSS3Manager implements StorageManager {
     private final S3Client s3Client;
     @Value("${aws.bucketName}")
     private String BUCKET_NAME;
-    @Value(("${aws.region"))
+    @Value(("${aws.region}"))
     private String LOCATION;
 
     @Override
@@ -37,7 +37,7 @@ public class AWSS3Manager implements StorageManager {
     }
 
     private String getFilePath(String fileName) {
-        return "https:// " + BUCKET_NAME + ".s3." + LOCATION + ".amazonaws.com/" + fileName;
+        return "https://" + BUCKET_NAME + ".s3." + LOCATION + ".amazonaws.com/" + fileName;
     }
 
     public void deleteFile() {
