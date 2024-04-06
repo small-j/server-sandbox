@@ -6,15 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import server.sandbox.pinterestclone.domain.Category;
-import server.sandbox.pinterestclone.domain.dto.CategoryRequest;
-import server.sandbox.pinterestclone.domain.dto.ImageMetaRequest;
-import server.sandbox.pinterestclone.domain.dto.ImageMetaResponse;
+import server.sandbox.pinterestclone.domain.dto.*;
 import server.sandbox.pinterestclone.repository.CategoryRepository;
 import server.sandbox.pinterestclone.repository.ImageRepository;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -31,11 +27,27 @@ class ImageServiceTest {
     private CategoryService categoryService;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private UserService userService;
+
+//    @Test
+    void uploadImage() throws FileNotFoundException, IOException {
+        String filePath = getClass().getClassLoader().getResource("test.jpg").getPath();
+        FileInputStream inputStream = new FileInputStream(filePath);
+
+        byte arr[] = inputStream.readAllBytes();
+        ImageResponse imageResponse = imageService.uploadImage(new FileRequest(inputStream, "image/jpeg", arr.length));
+        Assertions.assertThat(imageResponse.getUrl()).isNotNull();
+    }
 
     @Test
-    void addImage() throws FileNotFoundException {
-        String filePath = getClass().getClassLoader().getResource("test.jpg").getPath();
-        InputStream inputStream = new FileInputStream(filePath);
+    void addImage() throws FileNotFoundException, IOException {
+        UserRequest userRequest = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .build();
+
+        int userId = userService.register(userRequest);
 
         List<String> categoryNames = new ArrayList<>() {
             {
@@ -46,15 +58,18 @@ class ImageServiceTest {
         Stream<CategoryRequest> categoryRequestStream = categoryNames.stream().map(name -> new CategoryRequest(name));
         List<Integer> ids = categoryRequestStream.map(categoryRequest -> categoryService.addCategory(categoryRequest)).toList();
 
-        ImageMetaRequest imageMetaRequest = ImageMetaRequest.builder()
-                .imageData(inputStream)
-                .categories(ids)
-                .build();
+//        String filePath = getClass().getClassLoader().getResource("test.jpg").getPath();
+//        FileInputStream inputStream = new FileInputStream(filePath);
+//
+//        byte arr[] = inputStream.readAllBytes();
+//        ImageResponse imageResponse = imageService.uploadImage(new ImageRequest(inputStream, arr.length));
 
-        ImageMetaResponse res = imageService.addImage(imageMetaRequest);
-        Assertions.assertThat(imageRepository.findById(res.getId())).isNotNull();
+        ImageMetaRequest imageMetaRequest = new ImageMetaRequest(userId, "test", "test", "", "", ids);
 
+        int id = imageService.addImage(imageMetaRequest);
         Stream<Category> categories = categoryNames.stream().map(categoryName -> categoryRepository.findByName(categoryName).get(0));
+
+        Assertions.assertThat(imageRepository.findById(id)).isNotNull();
         Assertions.assertThat(categories.count()).isEqualTo(categoryNames.size());
     }
 }
