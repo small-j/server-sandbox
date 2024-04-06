@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,8 @@ public class ImageController {
 
     private final ImageService imageService;
 
+    private String FAIL_READ_INPUT_STREAM = "Fail to read input stream data";
+
     @PostMapping
     public ResponseEntity<ImageResponse> uploadImage(HttpServletRequest httpServletRequest) throws IOException {
         FileRequest imageRequest = new FileRequest(httpServletRequest.getInputStream(), httpServletRequest.getContentType(), httpServletRequest.getContentLength());
@@ -31,5 +34,10 @@ public class ImageController {
     @PostMapping("/meta")
     public ResponseEntity<Integer> addImage(@RequestBody ImageMetaRequest imageMetaRequest) {
         return ResponseEntity.ok().body(imageService.addImage(imageMetaRequest));
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<String> failToReadInputStreamData(Exception ex){
+        return ResponseEntity.badRequest().body(FAIL_READ_INPUT_STREAM);
     }
 }
