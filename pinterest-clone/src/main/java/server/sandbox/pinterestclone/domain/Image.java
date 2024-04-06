@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,11 +20,19 @@ public class Image {
     @Column(name = "image_meta_id")
     int id;
 
-    String imageUrl;
+    String url;
+
+    @Column(name = "image_key")
+    String key;
 
     String title;
 
+    @Column(name = "image_content")
     String content;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    User user;
 
     @Builder.Default
     @OneToMany(mappedBy = "image")
@@ -43,9 +50,8 @@ public class Image {
         imageCategories.add(imageCategory);
     }
 
-    public String uploadImage(InputStream inputStream) {
-        // TODO: 이미지 업로드 기능 추가
-        imageUrl = "";
-        return "";
+    public void setUser(User user) {
+        this.user = user;
+        user.addImage(this);
     }
 }

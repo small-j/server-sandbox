@@ -26,6 +26,15 @@ public class User {
 
     // TODO: add password.
 
+    @Builder.Default
+    @OneToMany(mappedBy = "user")
+    List<Image> images = new ArrayList<>();
+
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     List<UserImagePin> userImagePins = new ArrayList<>();
+
+    public void addImage(Image image) {
+        images.add(image);
+    }
 }
