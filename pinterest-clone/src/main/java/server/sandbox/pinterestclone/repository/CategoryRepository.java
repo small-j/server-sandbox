@@ -29,4 +29,9 @@ public class CategoryRepository {
     public Category findById(int id) {
         return em.find(Category.class, id);
     }
+
+    public List<Category> getCategories() {
+        return em.createQuery("select c from Category as c", Category.class)
+                .getResultList();
+    }
 }

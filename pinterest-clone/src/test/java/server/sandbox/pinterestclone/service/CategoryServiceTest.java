@@ -8,6 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import server.sandbox.pinterestclone.domain.dto.CategoryRequest;
 import server.sandbox.pinterestclone.repository.CategoryRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
 @SpringBootTest
 @Transactional
 class CategoryServiceTest {
@@ -32,5 +36,19 @@ class CategoryServiceTest {
 
         categoryService.addCategory(categoryRequest1);
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> categoryService.addCategory(categoryRequest2));
+    }
+
+    @Test
+    void getCategories() {
+        List<String> categoryNames = new ArrayList<>() {
+            {
+                add("스누피");
+                add("찰리 브라운");
+            }
+        };
+        Stream<CategoryRequest> categoryRequestStream = categoryNames.stream().map(name -> new CategoryRequest(name));
+        List<Integer> ids = categoryRequestStream.map(categoryRequest -> categoryService.addCategory(categoryRequest)).toList();
+
+        Assertions.assertThat(categoryService.getCategories().size()).isEqualTo(2);
     }
 }
