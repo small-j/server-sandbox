@@ -4,16 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.io.InputStream;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ImageMetaRequest {
-    int userId;
-    String title;
-    String content;
-    String key;
-    String url;
-    List<Integer> categories;
+public class FileRequest {
+    private InputStream inputStream;
+    private String contentType;
+    private long contentLength;
 }

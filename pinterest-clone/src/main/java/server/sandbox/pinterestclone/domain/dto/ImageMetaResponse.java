@@ -13,7 +13,7 @@ public class ImageMetaResponse {
     public static ImageMetaResponse of(Image entity) {
         ImageMetaResponse imageMetaResponse = new ImageMetaResponse();
         imageMetaResponse.id = entity.getId();
-        imageMetaResponse.imageUrl = entity.getImageUrl();
+        imageMetaResponse.imageUrl = entity.getUrl();
 
         return imageMetaResponse;
     }
