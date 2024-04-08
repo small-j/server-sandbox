@@ -32,9 +32,11 @@ public class User {
 
     @Builder.Default
     @OneToMany(mappedBy = "user")
-    List<UserImagePin> userImagePins = new ArrayList<>();
+    List<SaveImage> saveImages = new ArrayList<>();
 
     public void addImage(Image image) {
         images.add(image);
     }
+
+    public void addSaveImage(SaveImage saveImage) { saveImages.add(saveImage); }
 }
