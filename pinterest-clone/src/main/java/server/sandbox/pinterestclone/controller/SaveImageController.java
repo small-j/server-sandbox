@@ -3,10 +3,7 @@ package server.sandbox.pinterestclone.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import server.sandbox.pinterestclone.domain.dto.SaveImageRequest;
 import server.sandbox.pinterestclone.service.SaveImageService;
 
@@ -21,6 +18,12 @@ public class SaveImageController {
     public ResponseEntity<Integer> addSaveImage(@RequestBody SaveImageRequest saveImageRequest) {
         return ResponseEntity.ok()
                 .body(saveImageService.addSaveImage(saveImageRequest));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Integer> deleteSaveImage(@RequestParam(value = "id") int id) {
+        return ResponseEntity.ok()
+                .body(saveImageService.deleteSaveImage(id));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

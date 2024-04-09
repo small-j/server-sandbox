@@ -27,4 +27,12 @@ public class SaveImageRepository {
                 .setParameter("image", image)
                 .getSingleResult();
     }
+
+    public void deleteSaveImage(int id) {
+        em.createQuery("delete from SaveImage si where si.id = :id")
+                .setParameter("id", id)
+                .executeUpdate();
+
+        em.clear();
+    }
 }

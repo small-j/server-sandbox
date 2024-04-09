@@ -9,10 +9,6 @@ import server.sandbox.pinterestclone.domain.Image;
 import server.sandbox.pinterestclone.domain.SaveImage;
 import server.sandbox.pinterestclone.domain.User;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 @Transactional
 class SaveImageRepositoryTest {
@@ -71,5 +67,30 @@ class SaveImageRepositoryTest {
 
         SaveImage findSaveImage2 = saveImageRepository.findByUserIdAndImageID(user, image);
         Assertions.assertThat(findSaveImage2).isEqualTo(saveImage);
+    }
+
+    @Test
+    void deleteSaveImage() {
+        User user = User.builder()
+                .email("smallj")
+                .name("김지윤")
+                .build();
+
+        Image image = Image.builder()
+                .title("test")
+                .content("test")
+                .url("test")
+                .key("test")
+                .build();
+
+        userRepository.register(user);
+        imageRepository.addImage(image);
+
+        SaveImage saveImage = SaveImage.createSaveImage(user, image);
+        saveImageRepository.addSaveImage(saveImage);
+
+        saveImageRepository.deleteSaveImage(saveImage.getId());
+        SaveImage findSaveImage = saveImageRepository.findById(saveImage.getId());
+        Assertions.assertThat(findSaveImage).isNull();
     }
 }

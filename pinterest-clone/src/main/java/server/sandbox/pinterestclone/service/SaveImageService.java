@@ -23,6 +23,7 @@ public class SaveImageService {
     private final SaveImageRepository saveImageRepository;
 
     private String DUPLICATE_SAVE_IMAGE = "This image is already saved";
+    private String NOT_EXIST_SAVE_IMAGE = "Save image does not exist.";
     private String NOT_EXIST_USER = "This user is not exist.";
     private String NOT_EXIST_IMAGE = "This image is not exist.";
 
@@ -43,6 +44,19 @@ public class SaveImageService {
         }
 
         return saveImage.getId();
+    }
+
+    @Transactional
+    public int deleteSaveImage(int saveImageId) {
+        isExistSaveImage(saveImageId);
+        saveImageRepository.deleteSaveImage(saveImageId);
+
+        return saveImageId;
+    }
+
+    private void isExistSaveImage(int saveImageId) {
+        if (ObjectUtils.isEmpty(saveImageRepository.findById(saveImageId)))
+            throw new IllegalArgumentException(NOT_EXIST_SAVE_IMAGE);
     }
 
     private void validateUser(User user) {

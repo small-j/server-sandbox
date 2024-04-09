@@ -98,4 +98,54 @@ class SaveImageServiceTest {
         saveImageService.addSaveImage(saveImageRequest);
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> saveImageService.addSaveImage(saveImageRequest));
     }
+
+    @Test
+    void deleteSaveImage() {
+        User user = User.builder()
+                .email("smallj")
+                .name("김지윤")
+                .build();
+
+        Image image = Image.builder()
+                .title("test")
+                .content("test")
+                .url("test")
+                .key("test")
+                .build();
+
+        userRepository.register(user);
+        imageRepository.addImage(image);
+
+        SaveImageRequest saveImageRequest = new SaveImageRequest(user.getId(), image.getId());
+        int id = saveImageService.addSaveImage(saveImageRequest);
+
+        saveImageService.deleteSaveImage(id);
+
+        Assertions.assertThat(saveImageRepository.findById(id)).isNull();
+    }
+
+    @Test
+    void deleteNotExistSaveImage() {
+        User user = User.builder()
+                .email("smallj")
+                .name("김지윤")
+                .build();
+
+        Image image = Image.builder()
+                .title("test")
+                .content("test")
+                .url("test")
+                .key("test")
+                .build();
+
+        userRepository.register(user);
+        imageRepository.addImage(image);
+
+        SaveImageRequest saveImageRequest = new SaveImageRequest(user.getId(), image.getId());
+        int id = saveImageService.addSaveImage(saveImageRequest);
+
+        saveImageService.deleteSaveImage(id);
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+                () -> saveImageService.deleteSaveImage(id));
+    }
 }
