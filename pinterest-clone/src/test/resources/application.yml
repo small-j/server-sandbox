@@ -1,6 +1,12 @@
 #server:
 #  port: 8016
 
+aws:
+  accessKeyId: ${aws.s3.accessKey}
+  secretKey: ${aws.s3.secretKey}
+  bucketName: "pinterest-clone-service"
+  region: "ap-northeast-2"
+
 spring:
   application:
     name: pinterest-clone-test
@@ -27,4 +33,4 @@ logging:
       hibernate:
         type:
           descriptor:
-            sql: trace
+            sql: debug
