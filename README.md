@@ -7,6 +7,7 @@
 
 ## Pinterest clone
 대량의 이미지 데이터를 처리하는 서버 환경구성 및 기능 개발
+
 Pinterest의 기능을 일부 구현했습니다.
 
 ### ERD(v1)
