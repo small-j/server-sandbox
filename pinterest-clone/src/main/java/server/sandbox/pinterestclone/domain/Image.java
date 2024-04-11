@@ -39,11 +39,11 @@ public class Image {
     List<UserImageHistory> userImageHistories = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "image")
+    @OneToMany(mappedBy = "image", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<ImageReply> imageReplies = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "image")
+    @OneToMany(mappedBy = "image", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<ImageCategory> imageCategories = new ArrayList<>();
 
     public void addCategory(ImageCategory imageCategory) {

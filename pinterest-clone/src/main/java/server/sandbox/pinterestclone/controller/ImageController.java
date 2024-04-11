@@ -4,10 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import server.sandbox.pinterestclone.domain.dto.FileRequest;
 import server.sandbox.pinterestclone.domain.dto.ImageMetaRequest;
 import server.sandbox.pinterestclone.domain.dto.ImageResponse;
@@ -22,7 +19,6 @@ public class ImageController {
 
     private final ImageService imageService;
 
-    private String FAIL_READ_INPUT_STREAM = "Fail to read input stream data";
 
     @PostMapping
     public ResponseEntity<ImageResponse> uploadImage(HttpServletRequest httpServletRequest) throws IOException {
@@ -36,8 +32,14 @@ public class ImageController {
         return ResponseEntity.ok().body(imageService.addImage(imageMetaRequest));
     }
 
-    @ExceptionHandler(IOException.class)
+    @DeleteMapping
+    public ResponseEntity<Integer> deleteImage(@RequestParam(value = "id") int id) {
+        return ResponseEntity.ok()
+                .body(imageService.deleteImage(id));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> failToReadInputStreamData(Exception ex){
-        return ResponseEntity.badRequest().body(FAIL_READ_INPUT_STREAM);
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

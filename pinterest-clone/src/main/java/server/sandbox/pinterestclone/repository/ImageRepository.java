@@ -18,4 +18,8 @@ public class ImageRepository {
     public Image findById(int id) {
         return em.find(Image.class, id);
     }
+
+    public void deleteImage(Image image) {
+        em.remove(image);
+    }
 }

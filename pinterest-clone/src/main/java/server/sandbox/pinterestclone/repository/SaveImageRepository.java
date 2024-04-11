@@ -7,6 +7,8 @@ import server.sandbox.pinterestclone.domain.Image;
 import server.sandbox.pinterestclone.domain.SaveImage;
 import server.sandbox.pinterestclone.domain.User;
 
+import java.util.List;
+
 @Repository
 @RequiredArgsConstructor
 public class SaveImageRepository {
@@ -34,5 +36,17 @@ public class SaveImageRepository {
                 .executeUpdate();
 
         em.clear();
+    }
+
+    public void deleteSaveImageToImage(Image image) {
+        em.createQuery("delete from SaveImage si where si.image = :image")
+                .setParameter("image", image)
+                .executeUpdate();
+    }
+
+    public List<SaveImage> findByImage(Image image) {
+        return em.createQuery("select si from SaveImage as si where si.image = :image", SaveImage.class)
+                .setParameter("image", image)
+                .getResultList();
     }
 }
