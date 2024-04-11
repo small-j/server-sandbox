@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import server.sandbox.pinterestclone.domain.dto.FileRequest;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
 
@@ -19,7 +19,7 @@ public class AWSS3Manager implements StorageManager {
     private String LOCATION;
 
     @Override
-    public String uploadFile(String fileName, FileRequest fileRequest) {
+    public String uploadFile(String fileName, FileRequest fileRequest) throws IOException {
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(BUCKET_NAME)
                 .key(fileName)
@@ -27,11 +27,7 @@ public class AWSS3Manager implements StorageManager {
                 .contentLength(fileRequest.getContentLength())
                 .build();
 
-        try {
-            s3Client.putObject(objectRequest, RequestBody.fromBytes(fileRequest.getInputStream().readAllBytes()));
-        } catch(IOException e) {
-
-        }
+        s3Client.putObject(objectRequest, RequestBody.fromBytes(fileRequest.getInputStream().readAllBytes()));
 
         return getFilePath(fileName);
     }
@@ -40,7 +36,12 @@ public class AWSS3Manager implements StorageManager {
         return "https://" + BUCKET_NAME + ".s3." + LOCATION + ".amazonaws.com/" + fileName;
     }
 
-    public void deleteFile() {
+    public void deleteFile(String fileName) {
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(BUCKET_NAME)
+                .key(fileName)
+                .build();
 
+        s3Client.deleteObject(deleteObjectRequest);
     }
 }
