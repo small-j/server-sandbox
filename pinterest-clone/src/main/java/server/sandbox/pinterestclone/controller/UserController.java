@@ -3,10 +3,8 @@ package server.sandbox.pinterestclone.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import server.sandbox.pinterestclone.domain.dto.UserInfoResponse;
 import server.sandbox.pinterestclone.domain.dto.UserRequest;
 import server.sandbox.pinterestclone.service.UserService;
 
@@ -21,6 +19,12 @@ public class UserController {
     public ResponseEntity<Integer> register(@RequestBody UserRequest userRequest) {
         return ResponseEntity.ok()
                 .body(userService.register(userRequest));
+    }
+
+    @GetMapping
+    public ResponseEntity<UserInfoResponse> getUserInfo(@RequestParam(value = "id") int id) {
+        return ResponseEntity.ok()
+                .body(userService.getUserInfo(id));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

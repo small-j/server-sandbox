@@ -49,4 +49,10 @@ public class SaveImageRepository {
                 .setParameter("image", image)
                 .getResultList();
     }
+
+    public List<SaveImage> findByUser(User user) {
+        return em.createQuery("select si from SaveImage as si where si.user = :user", SaveImage.class)
+                .setParameter("user", user)
+                .getResultList();
+    }
 }
