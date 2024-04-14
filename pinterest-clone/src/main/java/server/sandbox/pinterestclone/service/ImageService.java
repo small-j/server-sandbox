@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import server.sandbox.pinterestclone.domain.Image;
 import server.sandbox.pinterestclone.domain.ImageCategory;
 import server.sandbox.pinterestclone.domain.User;
@@ -31,6 +32,7 @@ public class ImageService {
     private final StorageManager storageManager;
 
     private String FAIL_READ_INPUT_STREAM = "Fail to read input stream data";
+    private String NOT_EXIST_USER = "This user is not exist.";
 
     public ImageResponse uploadImage(FileRequest imageRequest) {
         String key = UUID.randomUUID().toString();
@@ -47,6 +49,7 @@ public class ImageService {
     @Transactional
     public Integer addImage(ImageMetaRequest imageMetaRequest) {
         User user = userRepository.findById(imageMetaRequest.getUserId());
+        validateUser(user);
 
         // 이미지 정보 추가
         Image image = Image.builder()
@@ -81,6 +84,11 @@ public class ImageService {
         imageRepository.deleteImage(image);
 
         return imageId;
+    }
+
+    private void validateUser(User user) {
+        if (ObjectUtils.isEmpty(user))
+            throw new IllegalArgumentException(NOT_EXIST_USER);
     }
 
     private void deleteS3Image(Image image) {
