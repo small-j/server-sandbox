@@ -21,6 +21,7 @@ public class ImageReplyService {
     private final UserRepository userRepository;
     private final ImageRepository imageRepository;
 
+    private String NOT_EXIST_REPLY = "Reply does not exist.";
     private String NOT_EXIST_USER = "This user is not exist.";
     private String NOT_EXIST_IMAGE = "This image is not exist.";
 
@@ -39,6 +40,20 @@ public class ImageReplyService {
 
         imageReplyRepository.addReply(imageReply);
         return imageReply.getId();
+    }
+
+    public int deleteReply(int id) {
+        ImageReply imageReply = imageReplyRepository.findById(id);
+        isExistReply(imageReply);
+
+        imageReplyRepository.deleteReply(imageReply);
+
+        return id;
+    }
+
+    private void isExistReply(ImageReply imageReply) {
+        if (ObjectUtils.isEmpty(imageReply))
+            throw new IllegalArgumentException(NOT_EXIST_REPLY);
     }
 
     private void validateUser(User user) {

@@ -18,4 +18,8 @@ public class ImageReplyRepository {
     public ImageReply findById(int id) {
         return em.find(ImageReply.class, id);
     }
+
+    public void deleteReply(ImageReply reply) {
+        em.remove(reply);
+    }
 }
