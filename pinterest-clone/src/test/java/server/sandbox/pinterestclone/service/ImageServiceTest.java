@@ -38,6 +38,8 @@ class ImageServiceTest {
     private CategoryRepository categoryRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ImageReplyService imageReplyService;
 
 //    @Test
     void uploadImage() throws FileNotFoundException, IOException {
@@ -123,5 +125,44 @@ class ImageServiceTest {
         Assertions.assertThat(imageCategoryRepository.findByImage(image).size()).isEqualTo(0);
         Assertions.assertThat(saveImageRepository.findByImage(image).size()).isEqualTo(0);
         Assertions.assertThat(categoryRepository.getCategories().size()).isEqualTo(2);
+    }
+
+
+    @Test
+    void findImage() {
+        UserRequest userRequest1 = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .build();
+
+        UserRequest userRequest2 = UserRequest.builder()
+                .email("aa@gmail.com")
+                .name("jiyun")
+                .build();
+
+        int userId1 = userService.register(userRequest1);
+        int userId2 = userService.register(userRequest2);
+
+        List<String> categoryNames = new ArrayList<>() {
+            {
+                add("스누피");
+                add("찰리 브라운");
+            }
+        };
+        Stream<CategoryRequest> categoryRequestStream = categoryNames.stream().map(name -> new CategoryRequest(name));
+        List<Integer> categoryIds = categoryRequestStream.map(categoryRequest -> categoryService.addCategory(categoryRequest)).toList();
+
+        ImageMetaRequest imageMetaRequest = new ImageMetaRequest(userId1, "test", "test", "", "", categoryIds);
+        int imageId = imageService.addImage(imageMetaRequest);
+        Image image = imageRepository.findById(imageId);
+
+
+        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), userId2, "");
+        imageReplyService.addReply(imageReplyRequest);
+        imageReplyService.addReply(imageReplyRequest);
+
+        ImageDetailInfoResponse imageDetailInfoResponse = imageService.findImage(imageId);
+        Assertions.assertThat(imageDetailInfoResponse.getImageMetaResponse().getTitle()).isEqualTo(image.getTitle());
+        Assertions.assertThat(imageDetailInfoResponse.getImageReplies().size()).isEqualTo(2);
     }
 }

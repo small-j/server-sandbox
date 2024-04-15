@@ -32,6 +32,7 @@ public class ImageService {
     private final StorageManager storageManager;
 
     private String FAIL_READ_INPUT_STREAM = "Fail to read input stream data";
+    private String NOT_EXIST_IMAGE = "This image is not exist.";
     private String NOT_EXIST_USER = "This user is not exist.";
 
     public ImageResponse uploadImage(FileRequest imageRequest) {
@@ -85,6 +86,22 @@ public class ImageService {
         imageRepository.deleteImage(image);
 
         return imageId;
+    }
+
+    public ImageDetailInfoResponse findImage(int id) {
+        Image image = imageRepository.findById(id);
+        validateImage(image);
+
+        List<ImageReplyResponse> imageReplyResponses = image.getImageReplies()
+                .stream()
+                .map(imageReply -> ImageReplyResponse.of(imageReply))
+                .toList();
+        return ImageDetailInfoResponse.of(image, imageReplyResponses);
+    }
+
+    private void validateImage(Image image) {
+        if (ObjectUtils.isEmpty(image))
+            throw new IllegalArgumentException(NOT_EXIST_IMAGE);
     }
 
     private void validateUser(User user) {

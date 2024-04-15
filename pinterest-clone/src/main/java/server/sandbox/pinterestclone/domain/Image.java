@@ -50,6 +50,8 @@ public class Image {
         imageCategories.add(imageCategory);
     }
 
+    public void addReply(ImageReply imageReply) { imageReplies.add(imageReply); }
+
     public void setUser(User user) {
         this.user = user;
         user.addImage(this);
