@@ -32,12 +32,7 @@ public class ImageReplyService {
         validateUser(user);
         validateImage(image);
 
-        ImageReply imageReply = ImageReply.builder()
-                .image(image)
-                .user(user)
-                .content(imageReplyRequest.getContent())
-                .build();
-
+        ImageReply imageReply = ImageReply.create(image, user, imageReplyRequest.getContent());
         imageReplyRepository.addReply(imageReply);
         return imageReply.getId();
     }

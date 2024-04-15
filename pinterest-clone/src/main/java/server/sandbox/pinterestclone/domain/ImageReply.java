@@ -26,4 +26,16 @@ public class ImageReply {
     User user;
 
     String content;
+
+    public static ImageReply create(Image image, User user, String content) {
+        ImageReply imageReply = ImageReply.builder()
+                .image(image)
+                .user(user)
+                .content(content)
+                .build();
+
+        image.addReply(imageReply);
+
+        return imageReply;
+    }
 }
