@@ -1,12 +1,16 @@
 package server.sandbox.pinterestclone.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@NoArgsConstructor
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ImageReply {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +21,9 @@ public class ImageReply {
     @JoinColumn(name = "image_meta_id")
     Image image;
 
-    int userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    User user;
 
     String content;
 }

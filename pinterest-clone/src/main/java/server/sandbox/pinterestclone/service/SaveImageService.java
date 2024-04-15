@@ -49,6 +49,7 @@ public class SaveImageService {
     @Transactional
     public int deleteSaveImage(int saveImageId) {
         isExistSaveImage(saveImageId);
+        // TODO: save image 조회해서 deleteSaveImage 메서드에 넘기는 방식으로 변경하기.
         saveImageRepository.deleteSaveImage(saveImageId);
 
         return saveImageId;

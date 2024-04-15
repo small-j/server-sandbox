@@ -62,6 +62,7 @@ public class ImageService {
 
         imageRepository.addImage(image);
 
+        // TODO: category exist check.
         // 이미지 카테고리 추가
         List<ImageCategory> imageCategories = imageMetaRequest.getCategories()
                 .stream()
