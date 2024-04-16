@@ -35,10 +35,6 @@ public class Image {
     User user;
 
     @Builder.Default
-    @OneToMany(mappedBy = "image")
-    List<UserImageHistory> userImageHistories = new ArrayList<>();
-
-    @Builder.Default
     @OneToMany(mappedBy = "image", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<ImageReply> imageReplies = new ArrayList<>();
 
@@ -49,6 +45,8 @@ public class Image {
     public void addCategory(ImageCategory imageCategory) {
         imageCategories.add(imageCategory);
     }
+
+    public void addReply(ImageReply imageReply) { imageReplies.add(imageReply); }
 
     public void setUser(User user) {
         this.user = user;

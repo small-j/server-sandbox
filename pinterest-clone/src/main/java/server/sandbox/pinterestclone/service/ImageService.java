@@ -8,6 +8,7 @@ import org.springframework.util.ObjectUtils;
 import server.sandbox.pinterestclone.domain.Image;
 import server.sandbox.pinterestclone.domain.ImageCategory;
 import server.sandbox.pinterestclone.domain.User;
+import server.sandbox.pinterestclone.domain.UserImageHistory;
 import server.sandbox.pinterestclone.domain.dto.*;
 import server.sandbox.pinterestclone.repository.ImageCategoryRepository;
 import server.sandbox.pinterestclone.repository.ImageRepository;
@@ -32,6 +33,7 @@ public class ImageService {
     private final StorageManager storageManager;
 
     private String FAIL_READ_INPUT_STREAM = "Fail to read input stream data";
+    private String NOT_EXIST_IMAGE = "This image is not exist.";
     private String NOT_EXIST_USER = "This user is not exist.";
 
     public ImageResponse uploadImage(FileRequest imageRequest) {
@@ -85,6 +87,40 @@ public class ImageService {
         imageRepository.deleteImage(image);
 
         return imageId;
+    }
+
+    @Transactional
+    public ImageDetailInfoResponse findImage(int id, int userId) {
+        Image image = imageRepository.findById(id);
+        validateImage(image);
+
+        List<ImageReplyResponse> imageReplyResponses = image.getImageReplies()
+                .stream()
+                .map(imageReply -> ImageReplyResponse.of(imageReply))
+                .toList();
+
+        if (userId != -1) addUserImageHistory(image, userId); // TODO : refactor.
+
+        return ImageDetailInfoResponse.of(image, imageReplyResponses);
+    }
+
+    @Transactional
+    public void addUserImageHistory(Image image, int userId) {
+        User user = userRepository.findById(userId);
+        validateUser(user);
+
+        UserImageHistory userImageHistory = UserImageHistory.builder()
+                .image(image)
+                .user(user)
+                .build();
+        user.addImageHistory(userImageHistory);
+
+        imageRepository.addUserImageHistory(userImageHistory);
+    }
+
+    private void validateImage(Image image) {
+        if (ObjectUtils.isEmpty(image))
+            throw new IllegalArgumentException(NOT_EXIST_IMAGE);
     }
 
     private void validateUser(User user) {

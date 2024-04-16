@@ -1,12 +1,16 @@
 package server.sandbox.pinterestclone.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@NoArgsConstructor
 @Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserImageHistory {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_image_history_id")
@@ -16,5 +20,7 @@ public class UserImageHistory {
     @JoinColumn(name = "image_meta_id")
     Image image;
 
-    int userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    User user;
 }
