@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import server.sandbox.pinterestclone.domain.Image;
+import server.sandbox.pinterestclone.domain.UserImageHistory;
 
 @Repository
 @RequiredArgsConstructor
@@ -13,6 +14,10 @@ public class ImageRepository {
 
     public void addImage(Image image) {
         em.persist(image);
+    }
+
+    public void addUserImageHistory(UserImageHistory userImageHistory) {
+        em.persist(userImageHistory);
     }
 
     public Image findById(int id) {

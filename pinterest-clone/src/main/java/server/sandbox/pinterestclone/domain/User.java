@@ -35,9 +35,18 @@ public class User {
     @OneToMany(mappedBy = "user")
     List<SaveImage> saveImages = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "user")
+    List<UserImageHistory> userImageHistories = new ArrayList<>();
+
     public void addImage(Image image) {
         images.add(image);
     }
 
     public void addSaveImage(SaveImage saveImage) { saveImages.add(saveImage); }
+
+    public void addImageHistory(UserImageHistory userImageHistory) {
+        userImageHistories.add(userImageHistory);
+    }
+
 }

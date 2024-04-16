@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import server.sandbox.pinterestclone.domain.dto.FileRequest;
-import server.sandbox.pinterestclone.domain.dto.ImageDetailInfoResponse;
-import server.sandbox.pinterestclone.domain.dto.ImageMetaRequest;
-import server.sandbox.pinterestclone.domain.dto.ImageResponse;
+import server.sandbox.pinterestclone.domain.dto.*;
 import server.sandbox.pinterestclone.service.ImageService;
 
 import java.io.IOException;
@@ -40,9 +37,12 @@ public class ImageController {
     }
 
     @GetMapping
-    public ResponseEntity<ImageDetailInfoResponse> findImage(@RequestParam(value = "id") int id) {
+    public ResponseEntity<ImageDetailInfoResponse> findImage(
+            @RequestParam(value = "id") int id,
+            @RequestParam(value = "user_id", required = false, defaultValue = "-1") int userId
+    ) {
         return ResponseEntity.ok()
-                .body(imageService.findImage(id));
+                .body(imageService.findImage(id, userId));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

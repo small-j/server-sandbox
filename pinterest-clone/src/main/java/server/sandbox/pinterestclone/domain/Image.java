@@ -35,10 +35,6 @@ public class Image {
     User user;
 
     @Builder.Default
-    @OneToMany(mappedBy = "image")
-    List<UserImageHistory> userImageHistories = new ArrayList<>();
-
-    @Builder.Default
     @OneToMany(mappedBy = "image", cascade = CascadeType.REMOVE, orphanRemoval = true)
     List<ImageReply> imageReplies = new ArrayList<>();
 
