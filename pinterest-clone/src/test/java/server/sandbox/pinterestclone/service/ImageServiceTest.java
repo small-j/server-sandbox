@@ -41,7 +41,11 @@ class ImageServiceTest {
     @Autowired
     private ImageReplyService imageReplyService;
 
+    // TODO : 외부 의존성 포함해서 테스트할 방법 찾기.
 //    @Test
+    /*
+     * S3에 실제 이미지 업로드, 삭제 로직은 주석 처리한 후 이 테스트를 실행할 수 있다.
+     * */
     void uploadImage() throws FileNotFoundException, IOException {
         String filePath = getClass().getClassLoader().getResource("test.jpg").getPath();
         FileInputStream inputStream = new FileInputStream(filePath);
@@ -51,7 +55,11 @@ class ImageServiceTest {
         Assertions.assertThat(imageResponse.getUrl()).isNotNull();
     }
 
+    // TODO : 외부 의존성 포함해서 테스트할 방법 찾기.
     // @Test
+    /*
+     * S3에 실제 이미지 업로드, 삭제 로직은 주석 처리한 후 이 테스트를 실행할 수 있다.
+     * */
     void deleteS3Image() throws FileNotFoundException, IOException {
         String filePath = getClass().getClassLoader().getResource("test.jpg").getPath();
         FileInputStream inputStream = new FileInputStream(filePath);
@@ -94,7 +102,8 @@ class ImageServiceTest {
         Assertions.assertThat(categories.count()).isEqualTo(categoryNames.size());
     }
 
-    @Test
+    // TODO : 외부 의존성 포함해서 테스트할 방법 찾기.
+//    @Test
     /*
     * S3에 실제 이미지 업로드, 삭제 로직은 주석 처리한 후 이 테스트를 실행할 수 있다.
     * */
