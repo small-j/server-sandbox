@@ -2,6 +2,7 @@ package com.serversandbox.auth.config;
 
 import com.serversandbox.auth.filter.JwtAuthenticationFilter;
 import com.serversandbox.auth.filter.JwtAuthorizationFilter;
+import com.serversandbox.auth.jwt.JwtProvider;
 import com.serversandbox.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,7 @@ public class SecurityConfig{
 
     private final UserRepository userRepository;
     private final CorsConfig corsConfig;
+    private final JwtProvider jwtProvider;
 // security config에서는 authenticationManager를 의존성주입으로 받을 수 없다.
 //    private final AuthenticationManager authenticationManager;
 
@@ -56,7 +58,7 @@ public class SecurityConfig{
             AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
             http
                     .addFilter(corsConfig.corsFilter())
-                    .addFilter(new JwtAuthenticationFilter(authenticationManager))
+                    .addFilter(new JwtAuthenticationFilter(authenticationManager, jwtProvider))
                     .addFilter(new JwtAuthorizationFilter(authenticationManager, userRepository));
         }
     }
