@@ -1,5 +1,6 @@
 package com.serversandbox.auth.config;
 
+import com.serversandbox.auth.filter.JwtAuthFilter;
 import com.serversandbox.auth.filter.JwtAuthenticationFilter;
 import com.serversandbox.auth.filter.JwtAuthorizationFilter;
 import com.serversandbox.auth.jwt.JwtProvider;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -40,10 +42,13 @@ public class SecurityConfig{
                 .httpBasic(AbstractHttpConfigurer::disable);
 
         http
-                .apply(new MyCustomDsl());
+//                .apply(new MyCustomDsl()); // BasicAuthenticationFilter, UsernamePasswordAuthenticationFilter 버전.
+                .addFilter(corsConfig.corsFilter())
+                .addFilterBefore(new JwtAuthFilter(jwtProvider, userRepository), UsernamePasswordAuthenticationFilter.class);
         http
                 .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/join", "/login").permitAll()
+                .requestMatchers("/v2/api/join", "/v2/api/login").permitAll()
                 .anyRequest().authenticated());
 
         return http.build();
