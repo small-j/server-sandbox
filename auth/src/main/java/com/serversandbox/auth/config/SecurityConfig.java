@@ -24,7 +24,6 @@ public class SecurityConfig{
     private final CorsConfig corsConfig;
     private final JwtProvider jwtProvider;
 // security config에서는 authenticationManager를 의존성주입으로 받을 수 없다.
-//    private final AuthenticationManager authenticationManager;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -59,7 +58,7 @@ public class SecurityConfig{
             http
                     .addFilter(corsConfig.corsFilter())
                     .addFilter(new JwtAuthenticationFilter(authenticationManager, jwtProvider))
-                    .addFilter(new JwtAuthorizationFilter(authenticationManager, userRepository));
+                    .addFilter(new JwtAuthorizationFilter(authenticationManager, userRepository, jwtProvider));
         }
     }
 }

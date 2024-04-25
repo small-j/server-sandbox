@@ -5,8 +5,8 @@ import com.serversandbox.auth.auth.PrincipalDetails;
 import com.serversandbox.auth.jwt.JwtProvider;
 import com.serversandbox.auth.model.LoginRequestDto;
 import com.serversandbox.auth.model.dto.JwtTokenHeaderForm;
+import com.serversandbox.auth.model.dto.UserInfoDto;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,15 +16,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.io.IOException;
-
 // http://localhost:8080/login 요청시에 이 필터가 실행된다.(post)
 // 이 필터를 다시 securityConfig에 등록하면 동작한다.
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtProvider jwtGenerator;
+    private final JwtProvider jwtProvider;
 
     // 1. username, password 받아서
     // 2. 정상인지 로그인 시도를 해본다.
@@ -54,13 +52,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult)
-            throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) {
         PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
-        String jwtToken = jwtGenerator.createJwtToken(principalDetails);
-        JwtTokenHeaderForm jwtTokenHeaderForm = jwtGenerator.getJwtTokenHeaderForm(jwtToken);
+        UserInfoDto userInfoDto = UserInfoDto.of(principalDetails.getUser());
+        String jwtToken = jwtProvider.createJwtToken(userInfoDto);
+        JwtTokenHeaderForm jwtTokenHeaderForm = jwtProvider.getJwtTokenHeaderForm(jwtToken);
         response.addHeader(jwtTokenHeaderForm.getHeaderName(), jwtTokenHeaderForm.getJwtToken());
-
         // doFilter를 실행하지 않고 메서드를 끝내면 다음 필터가 실행되지 않고 유저에게 response가 반환된다.
     }
 }

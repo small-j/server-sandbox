@@ -1,4 +1,4 @@
-package com.serversandbox.auth.filter;
+package com.serversandbox.auth.jwt;
 
 public interface JwtProperties {
     String SECRET = "secret";
