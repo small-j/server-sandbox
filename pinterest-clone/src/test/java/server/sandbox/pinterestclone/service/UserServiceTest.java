@@ -35,6 +35,7 @@ class UserServiceTest {
         UserRequest userRequest = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
+                .password("1234")
                 .build();
 
         int id = userService.register(userRequest);
@@ -47,11 +48,13 @@ class UserServiceTest {
         UserRequest user1 = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("김지윤")
+                .password("1234")
                 .build();
 
         UserRequest user2 = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("김지윤")
+                .password("1234")
                 .build();
 
         userService.register(user1);
@@ -63,6 +66,8 @@ class UserServiceTest {
         User user = User.builder()
                 .email("smallj")
                 .name("김지윤")
+                .password("1234")
+                .roles("USER")
                 .build();
 
         List<Image> images = new ArrayList<>();
