@@ -82,8 +82,8 @@ public class UserService {
             throw new IllegalArgumentException(NON_EXIST_USER);
     }
 
-    private void isEqualPassword(String dbPassword, String requestPassword) {
-        if (bCryptPasswordEncoder.matches(requestPassword, dbPassword))
+    private void isEqualPassword(String requestPassword, String dbPassword) {
+        if (!bCryptPasswordEncoder.matches(requestPassword, dbPassword))
             throw new BadCredentialsException(MISMATCHED_PASSWORD);
     }
 }
