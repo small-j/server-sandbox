@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import server.sandbox.pinterestclone.domain.User;
+import server.sandbox.pinterestclone.domain.dto.LoginInfoRequest;
 import server.sandbox.pinterestclone.domain.dto.UserInfoResponse;
 import server.sandbox.pinterestclone.domain.dto.UserRequest;
+import server.sandbox.pinterestclone.jwt.dto.JwtTokenHeaderForm;
 import server.sandbox.pinterestclone.service.UserService;
 
 @Controller
@@ -15,10 +18,18 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
+    @PostMapping("/join")
     public ResponseEntity<Integer> register(@RequestBody UserRequest userRequest) {
         return ResponseEntity.ok()
                 .body(userService.register(userRequest));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginInfoRequest loginInfoRequest) {
+        JwtTokenHeaderForm jwtTokenHeaderForm = userService.login(loginInfoRequest);
+        return ResponseEntity.ok()
+                .header(jwtTokenHeaderForm.getHeaderName(), jwtTokenHeaderForm.getJwtToken())
+                .body("로그인 성공");
     }
 
     @GetMapping

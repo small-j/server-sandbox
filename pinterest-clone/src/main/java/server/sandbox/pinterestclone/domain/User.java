@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -18,14 +19,23 @@ import java.util.List;
 public class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    int id;
+    private int id;
 
-    String name;
+    private String name;
 
     @Column(unique = true)
-    String email;
+    private String email;
 
-    // TODO: add password.
+    private String password;
+
+    private String roles;
+
+    public List<String> getRoleList() {
+        if (this.roles.length() > 0) {
+            return Arrays.asList(this.roles.split(","));
+        }
+        return new ArrayList<>();
+    }
 
     @Builder.Default
     @OneToMany(mappedBy = "user")
