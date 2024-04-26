@@ -23,9 +23,10 @@ public class UserRepository {
         return em.find(User.class, id);
     }
 
-    public List<User> findUserByEmail(String email) {
+    public User findUserByEmail(String email) {
         return em.createQuery("select u from User u where u.email = :email", User.class)
                 .setParameter("email", email)
-                .getResultList();
+                .getSingleResult();
+        // TODO: NoResultException 처리하기.
     }
 }
