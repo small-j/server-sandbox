@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Builder
-public class User {
+public class User extends BaseTime {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private int id;
@@ -30,24 +30,24 @@ public class User {
 
     private String roles;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "user")
+    private List<Image> images = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user")
+    private List<SaveImage> saveImages = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user")
+    private List<UserImageHistory> userImageHistories = new ArrayList<>();
+
     public List<String> getRoleList() {
         if (this.roles.length() > 0) {
             return Arrays.asList(this.roles.split(","));
         }
         return new ArrayList<>();
     }
-
-    @Builder.Default
-    @OneToMany(mappedBy = "user")
-    List<Image> images = new ArrayList<>();
-
-    @Builder.Default
-    @OneToMany(mappedBy = "user")
-    List<SaveImage> saveImages = new ArrayList<>();
-
-    @Builder.Default
-    @OneToMany(mappedBy = "user")
-    List<UserImageHistory> userImageHistories = new ArrayList<>();
 
     public void addImage(Image image) {
         images.add(image);

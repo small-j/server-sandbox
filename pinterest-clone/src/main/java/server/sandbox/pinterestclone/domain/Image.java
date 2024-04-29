@@ -15,32 +15,32 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Image {
+public class Image extends BaseTime {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "image_meta_id")
-    int id;
+    private int id;
 
-    String url;
+    private String url;
 
     @Column(name = "image_key")
-    String key;
+    private String key;
 
-    String title;
+    private String title;
 
     @Column(name = "image_content")
-    String content;
+    private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    User user;
+    private User user;
 
     @Builder.Default
     @OneToMany(mappedBy = "image", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    List<ImageReply> imageReplies = new ArrayList<>();
+    private List<ImageReply> imageReplies = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "image", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    List<ImageCategory> imageCategories = new ArrayList<>();
+    private List<ImageCategory> imageCategories = new ArrayList<>();
 
     public void addCategory(ImageCategory imageCategory) {
         imageCategories.add(imageCategory);
