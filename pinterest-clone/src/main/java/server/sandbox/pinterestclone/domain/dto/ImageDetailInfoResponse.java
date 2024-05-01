@@ -13,8 +13,9 @@ public class ImageDetailInfoResponse {
     @JsonProperty(value = "image")
     ImageMetaResponse imageMetaResponse;
     List<ImageReplyResponse> imageReplies;
+    List<ImageMetaSimpleResponse> moreImages;
 
-    public static ImageDetailInfoResponse of(Image image, List<ImageReplyResponse> imageReplyResponses) {
-        return new ImageDetailInfoResponse(ImageMetaResponse.of(image), imageReplyResponses);
+    public static ImageDetailInfoResponse of(Image image, List<ImageReplyResponse> imageReplyResponses, List<Image> moreImages) {
+        return new ImageDetailInfoResponse(ImageMetaResponse.of(image), imageReplyResponses, ImageMetaSimpleResponse.of(moreImages));
     }
 }

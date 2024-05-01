@@ -99,9 +99,16 @@ public class ImageService {
                 .map(imageReply -> ImageReplyResponse.of(imageReply))
                 .toList();
 
+        // 현재 이미지 카테고리 리스트 가져오기
+        // 카테고리와 일치하는 이미지 정보들 생성 날짜로 내림차순 정렬해서 가져오기
+        List<ImageCategory> imageCategories = image.getImageCategories();
+        List<Integer> categoryIds = imageCategories.stream().map(imageCategory -> imageCategory.getCategoryId()).toList();
+
+        List<Image> moreImages = imageRepository.findImageGetSimilarCategory(categoryIds);
+
         if (userId != -1) addUserImageHistory(image, userId); // TODO : refactor.
 
-        return ImageDetailInfoResponse.of(image, imageReplyResponses);
+        return ImageDetailInfoResponse.of(image, imageReplyResponses, moreImages);
     }
 
     @Transactional
