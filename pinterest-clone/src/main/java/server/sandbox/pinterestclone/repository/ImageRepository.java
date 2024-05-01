@@ -30,7 +30,7 @@ public class ImageRepository {
         em.remove(image);
     }
 
-    public List<Image> findImageGetSimilarCategory(List<Integer> categoryIds) {
+    public List<Image> findImagesWithSimilarCategories(List<Integer> categoryIds, int imageId) {
         // TODO : native query를 사용하지 않고 아래처럼 실행할 수 있는지 알아보기
 //        StringBuilder query = new StringBuilder("select a from Image a inner join ImageCategory b ON a.id = b.image"); // a.id = b.image가 제대로 실행되지 않을 것 같다.
 //        categoryIds.stream().forEach(categoryId -> query.append("where b.categoryId = " + categoryId));
@@ -48,6 +48,7 @@ public class ImageRepository {
             query.delete(query.length() - 3, query.length());
         }
         query.append("GROUP BY a.image_meta_id ");
+        query.append("HAVING a.image_meta_id != " + imageId + " ");
         query.append("ORDER BY COUNT(a.image_meta_id) DESC, a.created_date DESC");
 
         return em.createNativeQuery(query.toString(), Image.class)

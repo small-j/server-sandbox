@@ -75,6 +75,7 @@ class ImageServiceTest {
         UserRequest userRequest = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
+                .password("1234")
                 .build();
 
         int userId = userService.register(userRequest);
@@ -112,6 +113,7 @@ class ImageServiceTest {
         UserRequest userRequest = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
+                .password("1234")
                 .build();
 
         int userId = userService.register(userRequest);
@@ -143,11 +145,13 @@ class ImageServiceTest {
         UserRequest userRequest1 = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
+                .password("1234")
                 .build();
 
         UserRequest userRequest2 = UserRequest.builder()
                 .email("aa@gmail.com")
                 .name("jiyun")
+                .password("1234")
                 .build();
 
         int userId1 = userService.register(userRequest1);
@@ -163,7 +167,13 @@ class ImageServiceTest {
         List<Integer> categoryIds = categoryRequestStream.map(categoryRequest -> categoryService.addCategory(categoryRequest)).toList();
 
         ImageMetaRequest imageMetaRequest = new ImageMetaRequest(userId1, "test", "test", "", "", categoryIds);
+        ImageMetaRequest similarCategoryImageMetaRequest1 = new ImageMetaRequest(userId1, "test", "test", "", "", List.of(categoryIds.get(0)));
+        ImageMetaRequest similarCategoryImageMetaRequest2 = new ImageMetaRequest(userId1, "test", "test", "", "", List.of(categoryIds.get(0)));
+
         int imageId = imageService.addImage(imageMetaRequest);
+        int similarCategoryImageId1 = imageService.addImage(similarCategoryImageMetaRequest1);
+        int similarCategoryImageId2 = imageService.addImage(similarCategoryImageMetaRequest2);
+
         Image image = imageRepository.findById(imageId);
         User user = image.getUser();
 
@@ -172,9 +182,18 @@ class ImageServiceTest {
         imageReplyService.addReply(imageReplyRequest);
 
         ImageDetailInfoResponse imageDetailInfoResponse = imageService.findImage(imageId, -1);
+
+        imageService.findImage(similarCategoryImageId1, -1);
+        imageService.findImage(similarCategoryImageId2, -1);
+
         Assertions.assertThat(imageDetailInfoResponse.getImageMetaResponse().getTitle()).isEqualTo(image.getTitle());
         Assertions.assertThat(imageDetailInfoResponse.getImageReplies().size()).isEqualTo(2);
         Assertions.assertThat(user.getUserImageHistories().size()).isEqualTo(0);
+        Assertions.assertThat(imageDetailInfoResponse.getMoreImages().size()).isEqualTo(2);
+
+        List<Integer> similarCategoryIds = imageDetailInfoResponse.getMoreImages().stream().map(similarCategoryImage -> similarCategoryImage.getId()).toList();
+        Assertions.assertThat(similarCategoryIds).contains(similarCategoryImageId1);
+        Assertions.assertThat(similarCategoryIds).contains(similarCategoryImageId2);
     }
 
     @Test
@@ -182,11 +201,13 @@ class ImageServiceTest {
         UserRequest userRequest1 = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
+                .password("1234")
                 .build();
 
         UserRequest userRequest2 = UserRequest.builder()
                 .email("aa@gmail.com")
                 .name("jiyun")
+                .password("1234")
                 .build();
 
         int userId1 = userService.register(userRequest1);

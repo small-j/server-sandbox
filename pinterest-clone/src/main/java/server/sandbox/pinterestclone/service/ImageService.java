@@ -104,7 +104,7 @@ public class ImageService {
         List<ImageCategory> imageCategories = image.getImageCategories();
         List<Integer> categoryIds = imageCategories.stream().map(imageCategory -> imageCategory.getCategoryId()).toList();
 
-        List<Image> moreImages = imageRepository.findImageGetSimilarCategory(categoryIds);
+        List<Image> moreImages = imageRepository.findImagesWithSimilarCategories(categoryIds, id);
 
         if (userId != -1) addUserImageHistory(image, userId); // TODO : refactor.
 
