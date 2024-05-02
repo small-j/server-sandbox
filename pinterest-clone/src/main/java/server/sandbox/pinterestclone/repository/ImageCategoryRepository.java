@@ -23,4 +23,13 @@ public class ImageCategoryRepository {
                 .setParameter("image", image)
                 .getResultList();
     }
+
+    public List<ImageCategory> getCategoryFromSearchWord(String searchStr) {
+        String query = "select ic from ImageCategory as ic join Category as c";
+        query += " on ic.categoryId = c.id";
+        query += " where c.name like '%" + searchStr + "%'";
+
+        return em.createQuery(query, ImageCategory.class)
+                .getResultList();
+    }
 }
