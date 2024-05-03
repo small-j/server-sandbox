@@ -8,6 +8,4 @@ import lombok.Getter;
 public class ImageResponse {
     String key;
     String url;
-
-
 }

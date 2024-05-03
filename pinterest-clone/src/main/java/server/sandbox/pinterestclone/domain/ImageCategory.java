@@ -11,17 +11,17 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ImageCategory {
+public class ImageCategory extends BaseTime {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "image_category_id")
-    int id;
+    private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "image_meta_id")
-    Image image;
+    private Image image;
 
-    int categoryId;
+    private int categoryId;
 
     public static ImageCategory create(Image image, int categoryId) {
         ImageCategory imageCategory = ImageCategory.builder()

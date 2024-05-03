@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-import server.sandbox.pinterestclone.domain.Image;
-import server.sandbox.pinterestclone.domain.ImageCategory;
-import server.sandbox.pinterestclone.domain.User;
-import server.sandbox.pinterestclone.domain.UserImageHistory;
+import server.sandbox.pinterestclone.domain.*;
 import server.sandbox.pinterestclone.domain.dto.*;
 import server.sandbox.pinterestclone.repository.ImageCategoryRepository;
 import server.sandbox.pinterestclone.repository.ImageRepository;
@@ -17,6 +14,7 @@ import server.sandbox.pinterestclone.repository.UserRepository;
 import server.sandbox.pinterestclone.storage.StorageManager;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +33,7 @@ public class ImageService {
     private String FAIL_READ_INPUT_STREAM = "Fail to read input stream data";
     private String NOT_EXIST_IMAGE = "This image is not exist.";
     private String NOT_EXIST_USER = "This user is not exist.";
+    private String CANT_NOT_SEARCH_STRING = "Can not search empty string";
 
     public ImageResponse uploadImage(FileRequest imageRequest) {
         String key = UUID.randomUUID().toString();
@@ -99,9 +98,41 @@ public class ImageService {
                 .map(imageReply -> ImageReplyResponse.of(imageReply))
                 .toList();
 
+        // 현재 이미지 카테고리 리스트 가져오기
+        // 카테고리와 일치하는 이미지 정보들 생성 날짜로 내림차순 정렬해서 가져오기
+        List<ImageCategory> imageCategories = image.getImageCategories();
+        List<Integer> categoryIds = imageCategories.stream().map(imageCategory -> imageCategory.getCategoryId()).toList();
+
+        // TODO : categoryIds가 없거나 추가 이미지를 불러오지 않도록 수정.
+        List<Image> moreImages = imageRepository.findImagesWithSimilarCategories(categoryIds, id);
+
         if (userId != -1) addUserImageHistory(image, userId); // TODO : refactor.
 
-        return ImageDetailInfoResponse.of(image, imageReplyResponses);
+        return ImageDetailInfoResponse.of(image, imageReplyResponses, moreImages);
+    }
+
+    public List<ImageMetaSimpleResponse> getMainImages(int userId) {
+        User user = userRepository.findById(userId);
+        validateUser(user);
+
+        List<Image> images = imageRepository.getImageFromImageHistory(user);
+        List<Integer> categoryIds = imageRepository.getImageCategoryIdFromImages(images);
+        List<Image> recommendRandomImages = imageRepository.getRecommendRandomImages(categoryIds);
+
+        return ImageMetaSimpleResponse.of(recommendRandomImages);
+    }
+
+    public List<ImageMetaSimpleResponse> getSearchImages(String searchStr) {
+        validateSearchString(searchStr);
+
+        List<Image> imageTitleOrContentRelationalImages = imageRepository.getImageTitleOrContentRelationalImages(searchStr);
+        List<ImageCategory> imageCategories = imageCategoryRepository.getCategoryFromSearchWord(searchStr);
+        List<Image> categoryRelationalImages = new ArrayList<>();
+
+        if (imageCategories.size() > 0)
+            categoryRelationalImages = imageRepository.getCategoryRelationalImages(imageCategories);
+
+        return ImageMetaSimpleResponse.of(combineList(categoryRelationalImages, imageTitleOrContentRelationalImages));
     }
 
     @Transactional
@@ -128,11 +159,36 @@ public class ImageService {
             throw new IllegalArgumentException(NOT_EXIST_USER);
     }
 
+    private void validateSearchString(String searchStr) {
+        if (searchStr.length() <= 0)
+            throw new IllegalArgumentException(CANT_NOT_SEARCH_STRING);
+    }
+
     private void deleteS3Image(Image image) {
         storageManager.deleteFile(image.getKey());
     }
 
     private void deleteSaveImage(Image image) {
         saveImageRepository.deleteSaveImageToImage(image);
+    }
+
+    private List<Image> combineList(List<Image> a, List<Image> b) {
+        List<Image> result = new ArrayList<>();
+        List<Integer> ids = new ArrayList<>();
+
+        for (Image image : a) {
+            if (!ids.contains(image.getId())) {
+                ids.add(image.getId());
+                result.add(image);
+            }
+        }
+        for (Image image : b) {
+            if (!ids.contains(image.getId())) {
+                ids.add(image.getId());
+                result.add(image);
+            }
+        }
+
+        return result;
     }
 }

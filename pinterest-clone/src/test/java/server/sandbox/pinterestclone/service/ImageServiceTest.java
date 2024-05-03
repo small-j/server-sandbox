@@ -75,6 +75,7 @@ class ImageServiceTest {
         UserRequest userRequest = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
+                .password("1234")
                 .build();
 
         int userId = userService.register(userRequest);
@@ -112,6 +113,7 @@ class ImageServiceTest {
         UserRequest userRequest = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
+                .password("1234")
                 .build();
 
         int userId = userService.register(userRequest);
@@ -143,11 +145,13 @@ class ImageServiceTest {
         UserRequest userRequest1 = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
+                .password("1234")
                 .build();
 
         UserRequest userRequest2 = UserRequest.builder()
                 .email("aa@gmail.com")
                 .name("jiyun")
+                .password("1234")
                 .build();
 
         int userId1 = userService.register(userRequest1);
@@ -163,7 +167,13 @@ class ImageServiceTest {
         List<Integer> categoryIds = categoryRequestStream.map(categoryRequest -> categoryService.addCategory(categoryRequest)).toList();
 
         ImageMetaRequest imageMetaRequest = new ImageMetaRequest(userId1, "test", "test", "", "", categoryIds);
+        ImageMetaRequest similarCategoryImageMetaRequest1 = new ImageMetaRequest(userId1, "test", "test", "", "", List.of(categoryIds.get(0)));
+        ImageMetaRequest similarCategoryImageMetaRequest2 = new ImageMetaRequest(userId1, "test", "test", "", "", List.of(categoryIds.get(0)));
+
         int imageId = imageService.addImage(imageMetaRequest);
+        int similarCategoryImageId1 = imageService.addImage(similarCategoryImageMetaRequest1);
+        int similarCategoryImageId2 = imageService.addImage(similarCategoryImageMetaRequest2);
+
         Image image = imageRepository.findById(imageId);
         User user = image.getUser();
 
@@ -172,9 +182,108 @@ class ImageServiceTest {
         imageReplyService.addReply(imageReplyRequest);
 
         ImageDetailInfoResponse imageDetailInfoResponse = imageService.findImage(imageId, -1);
+
+        // TODO : 아래 코드 없이도 테스트 성공하나?
+//        imageService.findImage(similarCategoryImageId1, -1);
+//        imageService.findImage(similarCategoryImageId2, -1);
+
         Assertions.assertThat(imageDetailInfoResponse.getImageMetaResponse().getTitle()).isEqualTo(image.getTitle());
         Assertions.assertThat(imageDetailInfoResponse.getImageReplies().size()).isEqualTo(2);
         Assertions.assertThat(user.getUserImageHistories().size()).isEqualTo(0);
+        Assertions.assertThat(imageDetailInfoResponse.getMoreImages().size()).isEqualTo(2);
+
+        List<Integer> similarCategoryIds = imageDetailInfoResponse.getMoreImages().stream().map(similarCategoryImage -> similarCategoryImage.getId()).toList();
+        Assertions.assertThat(similarCategoryIds).contains(similarCategoryImageId1);
+        Assertions.assertThat(similarCategoryIds).contains(similarCategoryImageId2);
+    }
+
+    @Test
+    void getMainImages() {
+        UserRequest userRequest1 = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .password("1234")
+                .build();
+
+        UserRequest userRequest2 = UserRequest.builder()
+                .email("aa@gmail.com")
+                .name("jiyun")
+                .password("1234")
+                .build();
+
+        int userId1 = userService.register(userRequest1);
+        int userId2 = userService.register(userRequest2);
+
+        List<String> categoryNames = new ArrayList<>() {
+            {
+                add("스누피");
+                add("찰리 브라운");
+            }
+        };
+        Stream<CategoryRequest> categoryRequestStream = categoryNames.stream().map(name -> new CategoryRequest(name));
+        List<Integer> categoryIds = categoryRequestStream.map(categoryRequest -> categoryService.addCategory(categoryRequest)).toList();
+
+        // 같은 카테고리를 가진 이미지 3개 생성.
+        ImageMetaRequest imageMetaRequest = new ImageMetaRequest(userId1, "test", "test", "", "", categoryIds);
+        ImageMetaRequest similarCategoryImageMetaRequest1 = new ImageMetaRequest(userId2, "test", "test", "", "", List.of(categoryIds.get(0)));
+        ImageMetaRequest similarCategoryImageMetaRequest2 = new ImageMetaRequest(userId2, "test", "test", "", "", List.of(categoryIds.get(0)));
+
+        imageService.addImage(imageMetaRequest);
+        int similarCategoryImageId1 = imageService.addImage(similarCategoryImageMetaRequest1);
+        imageService.addImage(similarCategoryImageMetaRequest2);
+
+        // 이미지 조회. -> image history 기록됨.
+        imageService.findImage(similarCategoryImageId1, userId1);
+
+        List<ImageMetaSimpleResponse> imageMetaSimpleResponse1 = imageService.getMainImages(userId1);
+        List<ImageMetaSimpleResponse> imageMetaSimpleResponse2 = imageService.getMainImages(userId2);
+
+        Assertions.assertThat(imageMetaSimpleResponse1.size()).isEqualTo(3);
+        Assertions.assertThat(imageMetaSimpleResponse2.size()).isEqualTo(3);
+    }
+
+    @Test
+    void getSearchImages() {
+        UserRequest userRequest1 = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .password("1234")
+                .build();
+
+        UserRequest userRequest2 = UserRequest.builder()
+                .email("aa@gmail.com")
+                .name("jiyun")
+                .password("1234")
+                .build();
+
+        int userId1 = userService.register(userRequest1);
+        int userId2 = userService.register(userRequest2);
+
+        List<String> categoryNames = new ArrayList<>() {
+            {
+                add("스누피");
+                add("찰리 브라운");
+            }
+        };
+        Stream<CategoryRequest> categoryRequestStream = categoryNames.stream().map(name -> new CategoryRequest(name));
+        List<Integer> categoryIds = categoryRequestStream.map(categoryRequest -> categoryService.addCategory(categoryRequest)).toList();
+
+        // 같은 카테고리를 가진 이미지 3개 생성.
+        ImageMetaRequest imageMetaRequest = new ImageMetaRequest(userId1, "test", "test", "", "", categoryIds);
+        ImageMetaRequest similarCategoryImageMetaRequest1 = new ImageMetaRequest(userId2, "test", "test", "", "", List.of(categoryIds.get(0)));
+        ImageMetaRequest similarCategoryImageMetaRequest2 = new ImageMetaRequest(userId2, "스누피 이미지", "", "", "", List.of(categoryIds.get(0)));
+
+        imageService.addImage(imageMetaRequest);
+        imageService.addImage(similarCategoryImageMetaRequest1);
+        imageService.addImage(similarCategoryImageMetaRequest2);
+
+        List<ImageMetaSimpleResponse> imageMetaSimpleResponses1 = imageService.getSearchImages("스누피");
+        List<ImageMetaSimpleResponse> imageMetaSimpleResponses2 = imageService.getSearchImages("test");
+
+        Assertions.assertThat(imageMetaSimpleResponses1.size()).isEqualTo(3);
+        Assertions.assertThat(imageMetaSimpleResponses2.size()).isEqualTo(2);
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class
+                , () -> imageService.getSearchImages(""));
     }
 
     @Test
@@ -182,11 +291,13 @@ class ImageServiceTest {
         UserRequest userRequest1 = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
+                .password("1234")
                 .build();
 
         UserRequest userRequest2 = UserRequest.builder()
                 .email("aa@gmail.com")
                 .name("jiyun")
+                .password("1234")
                 .build();
 
         int userId1 = userService.register(userRequest1);
