@@ -41,7 +41,7 @@ public class ImageRepository {
 //        query.append("order by count(a.id) desc, a.createdDate desc");
 
         StringBuilder query = new StringBuilder();
-        query.append("SELECT a.image_meta_id, a.created_date, a.url, a.title, a.image_content, a.image_key, a.modified_date, a.user_id ");
+        query.append("SELECT a.image_meta_id, a.created_date, a.url, a.title, a.content, a.image_key, a.modified_date, a.user_id ");
         query.append("FROM image_meta as a ");
         query.append("INNER JOIN image_category as b ");
         query.append("ON a.image_meta_id = b.image_meta_id ");
@@ -91,7 +91,7 @@ public class ImageRepository {
 
     public List<Image> getRecommendRandomImages(List<Integer> categoryIds) {
         StringBuilder query = new StringBuilder();
-        query.append("SELECT a.image_meta_id, a.created_date, a.url, a.title, a.image_content, a.image_key, a.modified_date, a.user_id ");
+        query.append("SELECT a.image_meta_id, a.created_date, a.url, a.title, a.content, a.image_key, a.modified_date, a.user_id ");
         query.append("FROM image_meta as a ");
         query.append("INNER JOIN image_category as b ");
         query.append("ON a.image_meta_id = b.image_meta_id ");
