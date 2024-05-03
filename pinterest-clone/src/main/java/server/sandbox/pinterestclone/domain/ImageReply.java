@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class ImageReply extends BaseTime {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "image_reply")
+    @Column(name = "image_reply_id")
     private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
