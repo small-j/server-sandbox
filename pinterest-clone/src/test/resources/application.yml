@@ -1,36 +1,3 @@
-#server:
-#  port: 8016
-
-aws:
-  accessKeyId: ${aws.s3.accessKey}
-  secretKey: ${aws.s3.secretKey}
-  bucketName: "pinterest-clone-service"
-  region: "ap-northeast-2"
-
 spring:
-  application:
-    name: pinterest-clone-test
-
-  datasource:
-    url: jdbc:mysql://localhost:13306/pinterest_clone_test
-    username: ${db.username}
-    password: ${db.password}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        auto_quote_keyword: false
-        globally_quoted_identifiers: false
-        format_sql: true
-        show_sql: true
-
-logging:
-  level:
-    org:
-      hibernate:
-        type:
-          descriptor:
-            sql: debug
+  profiles:
+    active: test
