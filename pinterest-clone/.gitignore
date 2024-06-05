@@ -38,3 +38,13 @@ out/
 
 ### jwt property ###
 src/java/server/sandbox/pinerestclone/jwt/JwtProperties.java
+
+### sql ###
+init-data.sql
+
+### yml ###
+application-db.yml
+application-test.yml
+application-s3.yml
+application-dev.yml
+docker-compose.yml
