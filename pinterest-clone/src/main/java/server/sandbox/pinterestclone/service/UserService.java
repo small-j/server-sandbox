@@ -2,6 +2,7 @@ package server.sandbox.pinterestclone.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,6 @@ import server.sandbox.pinterestclone.domain.dto.UserRequest;
 import server.sandbox.pinterestclone.jwt.JwtProvider;
 import server.sandbox.pinterestclone.jwt.dto.JwtTokenHeaderForm;
 import server.sandbox.pinterestclone.jwt.dto.UserInfo;
-import server.sandbox.pinterestclone.repository.SaveImageRepository;
 import server.sandbox.pinterestclone.repository.UserRepository;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class UserService {
     private final JwtProvider jwtProvider;
 
     private String DUPLICATE_USER = "This user is already registered";
-    private String NON_EXIST_USER = "This user is not exist.";
+    private String NON_EXIST_USER = "This user does not exist.";
     private final String MISMATCHED_PASSWORD = "password not matched";
 
     @Transactional
@@ -52,7 +52,7 @@ public class UserService {
     }
 
     public JwtTokenHeaderForm login(LoginInfoRequest loginInfoRequest) {
-        User user = userRepository.findUserByEmail(loginInfoRequest.getEmail());
+        User user = findUserByEmail(loginInfoRequest.getEmail());
         validateUser(user);
         isEqualPassword(loginInfoRequest.getPassword(), user.getPassword());
 
@@ -85,5 +85,14 @@ public class UserService {
     private void isEqualPassword(String requestPassword, String dbPassword) {
         if (!bCryptPasswordEncoder.matches(requestPassword, dbPassword))
             throw new BadCredentialsException(MISMATCHED_PASSWORD);
+    }
+
+    private User findUserByEmail(String email) {
+        try {
+            User user = userRepository.findUserByEmail(email);
+            return user;
+        } catch (EmptyResultDataAccessException e) {
+            throw new IllegalArgumentException(NON_EXIST_USER);
+        }
     }
 }

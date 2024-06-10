@@ -27,7 +27,7 @@ public class Image extends BaseTime {
 
     private String title;
 
-    @Column(name = "content")
+    @Column(name = "image_content")
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
