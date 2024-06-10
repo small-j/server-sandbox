@@ -58,10 +58,12 @@ class UserServiceTest {
 
         LoginInfoRequest loginInfoRequest = new LoginInfoRequest(userRequest.getEmail(), password);
         LoginInfoRequest wrongLoginInfo = new LoginInfoRequest(userRequest.getEmail(), "");
+        LoginInfoRequest NonExistUser = new LoginInfoRequest("", "");
         JwtTokenHeaderForm jwtTokenHeaderForm = userService.login(loginInfoRequest);
 
         Assertions.assertThat(jwtTokenHeaderForm.getJwtToken()).isNotNull();
         org.junit.jupiter.api.Assertions.assertThrows(BadCredentialsException.class, () -> userService.login(wrongLoginInfo));
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> userService.login(NonExistUser));
     }
 
     @Test

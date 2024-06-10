@@ -27,6 +27,5 @@ public class UserRepository {
         return em.createQuery("select u from User u where u.email = :email", User.class)
                 .setParameter("email", email)
                 .getSingleResult();
-        // TODO: NoResultException 처리하기.
     }
 }
