@@ -48,3 +48,4 @@ application-test.yml
 application-s3.yml
 application-dev.yml
 docker-compose.yml
+application-sentry.yml

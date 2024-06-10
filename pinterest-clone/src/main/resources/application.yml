@@ -4,3 +4,4 @@ spring:
     include:
       - db
       - s3
+      - sentry
