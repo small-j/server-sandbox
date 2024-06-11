@@ -18,6 +18,7 @@ import server.sandbox.pinterestclone.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 
 @SpringBootTest
@@ -63,7 +64,7 @@ class UserServiceTest {
 
         Assertions.assertThat(jwtTokenHeaderForm.getJwtToken()).isNotNull();
         org.junit.jupiter.api.Assertions.assertThrows(BadCredentialsException.class, () -> userService.login(wrongLoginInfo));
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> userService.login(NonExistUser));
+        org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class, () -> userService.login(NonExistUser));
     }
 
     @Test
