@@ -49,4 +49,6 @@ public class UserController {
     public ResponseEntity<String> handleNoSuchElementException(Exception ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
+
+    // TODO BadCredentialsException 처리 필요.
 }
