@@ -12,6 +12,9 @@ import server.sandbox.pinterestclone.domain.dto.SaveImageRequest;
 import server.sandbox.pinterestclone.repository.ImageRepository;
 import server.sandbox.pinterestclone.repository.SaveImageRepository;
 import server.sandbox.pinterestclone.repository.UserRepository;
+import server.sandbox.pinterestclone.service.exception.ErrorMessage;
+
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,11 +24,6 @@ public class SaveImageService {
     private final UserRepository userRepository;
     private final ImageRepository imageRepository;
     private final SaveImageRepository saveImageRepository;
-
-    private String DUPLICATE_SAVE_IMAGE = "This image is already saved";
-    private String NOT_EXIST_SAVE_IMAGE = "Save image does not exist.";
-    private String NOT_EXIST_USER = "This user is not exist.";
-    private String NOT_EXIST_IMAGE = "This image is not exist.";
 
     @Transactional
     public int addSaveImage(SaveImageRequest saveImageRequest) {
@@ -40,7 +38,7 @@ public class SaveImageService {
         try {
             saveImageRepository.addSaveImage(saveImage);
         } catch (DataIntegrityViolationException ex) {
-            throw new IllegalArgumentException(DUPLICATE_SAVE_IMAGE);
+            throw new IllegalArgumentException(ErrorMessage.DUPLICATE_SAVE_IMAGE.getMessage());
         }
 
         return saveImage.getId();
@@ -57,16 +55,16 @@ public class SaveImageService {
 
     private void isExistSaveImage(int saveImageId) {
         if (ObjectUtils.isEmpty(saveImageRepository.findById(saveImageId)))
-            throw new IllegalArgumentException(NOT_EXIST_SAVE_IMAGE);
+            throw new NoSuchElementException(ErrorMessage.NOT_EXIST_SAVE_IMAGE.getMessage());
     }
 
     private void validateUser(User user) {
         if (ObjectUtils.isEmpty(user))
-            throw new IllegalArgumentException(NOT_EXIST_USER);
+            throw new NoSuchElementException(ErrorMessage.NOT_EXIST_USER.getMessage());
     }
 
     private void validateImage(Image image) {
         if (ObjectUtils.isEmpty(image))
-            throw new IllegalArgumentException(NOT_EXIST_IMAGE);
+            throw new NoSuchElementException(ErrorMessage.NOT_EXIST_IMAGE.getMessage());
     }
 }

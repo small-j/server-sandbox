@@ -11,11 +11,13 @@ import server.sandbox.pinterestclone.repository.ImageCategoryRepository;
 import server.sandbox.pinterestclone.repository.ImageRepository;
 import server.sandbox.pinterestclone.repository.SaveImageRepository;
 import server.sandbox.pinterestclone.repository.UserRepository;
+import server.sandbox.pinterestclone.service.exception.ErrorMessage;
 import server.sandbox.pinterestclone.storage.StorageManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -30,18 +32,13 @@ public class ImageService {
     private final UserRepository userRepository;
     private final StorageManager storageManager;
 
-    private String FAIL_READ_INPUT_STREAM = "Fail to read input stream data";
-    private String NOT_EXIST_IMAGE = "This image is not exist.";
-    private String NOT_EXIST_USER = "This user is not exist.";
-    private String CANT_NOT_SEARCH_STRING = "Can not search empty string";
-
     public ImageResponse uploadImage(FileRequest imageRequest) {
         String key = UUID.randomUUID().toString();
         String url = "";
         try {
             url = storageManager.uploadFile(key, imageRequest);
         } catch (IOException ex) {
-            throw new IllegalArgumentException(FAIL_READ_INPUT_STREAM);
+            throw new IllegalArgumentException(ErrorMessage.FAIL_READ_INPUT_STREAM.getMessage());
         }
 
         return new ImageResponse(key, url);
@@ -151,17 +148,17 @@ public class ImageService {
 
     private void validateImage(Image image) {
         if (ObjectUtils.isEmpty(image))
-            throw new IllegalArgumentException(NOT_EXIST_IMAGE);
+            throw new NoSuchElementException(ErrorMessage.NOT_EXIST_IMAGE.getMessage());
     }
 
     private void validateUser(User user) {
         if (ObjectUtils.isEmpty(user))
-            throw new IllegalArgumentException(NOT_EXIST_USER);
+            throw new NoSuchElementException(ErrorMessage.NOT_EXIST_USER.getMessage());
     }
 
     private void validateSearchString(String searchStr) {
         if (searchStr.length() <= 0)
-            throw new IllegalArgumentException(CANT_NOT_SEARCH_STRING);
+            throw new IllegalArgumentException(ErrorMessage.CAN_NOT_SEARCH_STRING.getMessage());
     }
 
     private void deleteS3Image(Image image) {
