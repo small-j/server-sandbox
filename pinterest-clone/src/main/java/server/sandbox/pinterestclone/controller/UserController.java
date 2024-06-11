@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> userExistError(Exception ex) {
+    public ResponseEntity<String> handleIllegalArgumentException(Exception ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

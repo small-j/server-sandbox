@@ -46,7 +46,7 @@ public class ImageController {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> failToReadInputStreamData(Exception ex){
+    public ResponseEntity<String> handleIllegalArgumentException(Exception ex){
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }
