@@ -11,6 +11,9 @@ import server.sandbox.pinterestclone.domain.dto.ImageReplyRequest;
 import server.sandbox.pinterestclone.repository.ImageReplyRepository;
 import server.sandbox.pinterestclone.repository.ImageRepository;
 import server.sandbox.pinterestclone.repository.UserRepository;
+import server.sandbox.pinterestclone.service.exception.ErrorMessage;
+
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional
@@ -20,10 +23,6 @@ public class ImageReplyService {
     private final ImageReplyRepository imageReplyRepository;
     private final UserRepository userRepository;
     private final ImageRepository imageRepository;
-
-    private String NOT_EXIST_REPLY = "Reply does not exist.";
-    private String NOT_EXIST_USER = "This user is not exist.";
-    private String NOT_EXIST_IMAGE = "This image is not exist.";
 
     public int addReply(ImageReplyRequest imageReplyRequest) {
         User user = userRepository.findById(imageReplyRequest.getUserId());
@@ -48,16 +47,16 @@ public class ImageReplyService {
 
     private void isExistReply(ImageReply imageReply) {
         if (ObjectUtils.isEmpty(imageReply))
-            throw new IllegalArgumentException(NOT_EXIST_REPLY);
+            throw new NoSuchElementException(ErrorMessage.NOT_EXIST_REPLY.getMessage());
     }
 
     private void validateUser(User user) {
         if (ObjectUtils.isEmpty(user))
-            throw new IllegalArgumentException(NOT_EXIST_USER);
+            throw new NoSuchElementException(ErrorMessage.NOT_EXIST_USER.getMessage());
     }
 
     private void validateImage(Image image) {
         if (ObjectUtils.isEmpty(image))
-            throw new IllegalArgumentException(NOT_EXIST_IMAGE);
+            throw new NoSuchElementException(ErrorMessage.NOT_EXIST_IMAGE.getMessage());
     }
 }

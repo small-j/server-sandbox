@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import server.sandbox.pinterestclone.domain.dto.SaveImageRequest;
 import server.sandbox.pinterestclone.service.SaveImageService;
 
+import java.util.NoSuchElementException;
+
 @Controller
 @RequestMapping("/save-image")
 @RequiredArgsConstructor
@@ -27,7 +29,12 @@ public class SaveImageController {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> saveImageExistError(Exception ex) {
+    public ResponseEntity<String> handleIllegalArgumentException(Exception ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> handleNoSuchElementException(Exception ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

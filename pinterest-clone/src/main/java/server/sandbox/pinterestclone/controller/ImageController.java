@@ -9,6 +9,7 @@ import server.sandbox.pinterestclone.domain.dto.*;
 import server.sandbox.pinterestclone.service.ImageService;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 @Controller
 @RequestMapping("/image")
@@ -46,7 +47,12 @@ public class ImageController {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> failToReadInputStreamData(Exception ex){
+    public ResponseEntity<String> handleIllegalArgumentException(Exception ex){
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> handleNoSuchElementException(Exception ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

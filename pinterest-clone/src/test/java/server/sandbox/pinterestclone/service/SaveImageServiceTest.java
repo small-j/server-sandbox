@@ -12,6 +12,8 @@ import server.sandbox.pinterestclone.repository.ImageRepository;
 import server.sandbox.pinterestclone.repository.SaveImageRepository;
 import server.sandbox.pinterestclone.repository.UserRepository;
 
+import java.util.NoSuchElementException;
+
 @SpringBootTest
 @Transactional
 class SaveImageServiceTest {
@@ -61,7 +63,7 @@ class SaveImageServiceTest {
         imageRepository.addImage(image);
 
         SaveImageRequest saveImageRequest = new SaveImageRequest(tempId, image.getId());
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> saveImageService.addSaveImage(saveImageRequest));
+        org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class, () -> saveImageService.addSaveImage(saveImageRequest));
     }
 
     @Test
@@ -74,7 +76,7 @@ class SaveImageServiceTest {
         userRepository.register(user);
 
         SaveImageRequest saveImageRequest = new SaveImageRequest(user.getId(), tempId);
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> saveImageService.addSaveImage(saveImageRequest));
+        org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class, () -> saveImageService.addSaveImage(saveImageRequest));
     }
 
     @Test
@@ -145,7 +147,7 @@ class SaveImageServiceTest {
         int id = saveImageService.addSaveImage(saveImageRequest);
 
         saveImageService.deleteSaveImage(id);
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+        org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class,
                 () -> saveImageService.deleteSaveImage(id));
     }
 }

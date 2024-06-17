@@ -18,8 +18,10 @@ import server.sandbox.pinterestclone.jwt.JwtProvider;
 import server.sandbox.pinterestclone.jwt.dto.JwtTokenHeaderForm;
 import server.sandbox.pinterestclone.jwt.dto.UserInfo;
 import server.sandbox.pinterestclone.repository.UserRepository;
+import server.sandbox.pinterestclone.service.exception.ErrorMessage;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,10 +31,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtProvider jwtProvider;
-
-    private String DUPLICATE_USER = "This user is already registered";
-    private String NON_EXIST_USER = "This user does not exist.";
-    private final String MISMATCHED_PASSWORD = "password not matched";
 
     @Transactional
     public int register(UserRequest userRequest) {
@@ -45,7 +43,7 @@ public class UserService {
         try {
             userRepository.register(user);
         } catch (DataIntegrityViolationException ex) {
-            throw new IllegalArgumentException(DUPLICATE_USER);
+            throw new IllegalArgumentException(ErrorMessage.DUPLICATE_USER.getMessage());
         }
 
         return user.getId();
@@ -79,12 +77,12 @@ public class UserService {
 
     private void validateUser(User user) {
         if (ObjectUtils.isEmpty(user))
-            throw new IllegalArgumentException(NON_EXIST_USER);
+            throw new NoSuchElementException(ErrorMessage.NOT_EXIST_USER.getMessage());
     }
 
     private void isEqualPassword(String requestPassword, String dbPassword) {
         if (!bCryptPasswordEncoder.matches(requestPassword, dbPassword))
-            throw new BadCredentialsException(MISMATCHED_PASSWORD);
+            throw new BadCredentialsException(ErrorMessage.MISMATCHED_PASSWORD.getMessage());
     }
 
     private User findUserByEmail(String email) {
@@ -92,7 +90,7 @@ public class UserService {
             User user = userRepository.findUserByEmail(email);
             return user;
         } catch (EmptyResultDataAccessException e) {
-            throw new IllegalArgumentException(NON_EXIST_USER);
+            throw new NoSuchElementException(ErrorMessage.NOT_EXIST_USER.getMessage());
         }
     }
 }

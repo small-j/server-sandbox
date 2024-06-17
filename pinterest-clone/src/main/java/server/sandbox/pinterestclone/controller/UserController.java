@@ -11,6 +11,8 @@ import server.sandbox.pinterestclone.domain.dto.UserRequest;
 import server.sandbox.pinterestclone.jwt.dto.JwtTokenHeaderForm;
 import server.sandbox.pinterestclone.service.UserService;
 
+import java.util.NoSuchElementException;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/user")
@@ -39,7 +41,14 @@ public class UserController {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> userExistError(Exception ex) {
+    public ResponseEntity<String> handleIllegalArgumentException(Exception ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> handleNoSuchElementException(Exception ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    // TODO BadCredentialsException 처리 필요.
 }

@@ -8,6 +8,7 @@ import server.sandbox.pinterestclone.domain.Category;
 import server.sandbox.pinterestclone.domain.dto.CategoryRequest;
 import server.sandbox.pinterestclone.domain.dto.CategoryResponse;
 import server.sandbox.pinterestclone.repository.CategoryRepository;
+import server.sandbox.pinterestclone.service.exception.ErrorMessage;
 
 import java.util.List;
 
@@ -19,12 +20,10 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    private String DUPLICATE_CATEGORY_NAME = "This category is already existed";
-
     @Transactional
     public int addCategory(CategoryRequest categoryRequest) {
         if (!validateDuplicateUser(categoryRequest))
-            throw new IllegalArgumentException(DUPLICATE_CATEGORY_NAME);
+            throw new IllegalArgumentException(ErrorMessage.DUPLICATE_CATEGORY_NAME.getMessage());
 
         Category category = Category.builder()
                 .name(categoryRequest.getName())

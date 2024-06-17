@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import server.sandbox.pinterestclone.domain.dto.ImageReplyRequest;
 import server.sandbox.pinterestclone.service.ImageReplyService;
 
+import java.util.NoSuchElementException;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/reply")
@@ -26,8 +28,8 @@ public class ImageReplyController {
                 .body(imageReplyService.deleteReply(id));
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(Exception ex) {
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<String> handleNoSuchElementException(Exception ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

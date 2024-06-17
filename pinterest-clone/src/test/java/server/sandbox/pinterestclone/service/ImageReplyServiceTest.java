@@ -12,6 +12,8 @@ import server.sandbox.pinterestclone.repository.ImageReplyRepository;
 import server.sandbox.pinterestclone.repository.ImageRepository;
 import server.sandbox.pinterestclone.repository.UserRepository;
 
+import java.util.NoSuchElementException;
+
 @SpringBootTest
 @Transactional
 class ImageReplyServiceTest {
@@ -61,7 +63,7 @@ class ImageReplyServiceTest {
         imageRepository.addImage(image);
 
         ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), tempId, "");
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> imageReplyService.addReply(imageReplyRequest));
+        org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class, () -> imageReplyService.addReply(imageReplyRequest));
     }
 
     @Test
@@ -74,7 +76,7 @@ class ImageReplyServiceTest {
         userRepository.register(user);
 
         ImageReplyRequest imageReplyRequest = new ImageReplyRequest(tempId, user.getId(), "");
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> imageReplyService.addReply(imageReplyRequest));
+        org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class, () -> imageReplyService.addReply(imageReplyRequest));
     }
 
     @Test
@@ -125,7 +127,7 @@ class ImageReplyServiceTest {
         Assertions.assertThat(imageReplyRepository.findById(id)).isNotNull();
         imageReplyService.deleteReply(id);
 
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+        org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class,
                 () -> imageReplyService.deleteReply(id));
     }
 }
