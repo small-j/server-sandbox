@@ -17,6 +17,7 @@ import server.sandbox.pinterestclone.repository.SaveImageRepository;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 @SpringBootTest
@@ -79,6 +80,7 @@ class ImageServiceTest {
                 .build();
 
         int userId = userService.register(userRequest);
+        int notExistUserId = 1234;
 
         List<String> categoryNames = new ArrayList<>() {
             {
@@ -88,6 +90,8 @@ class ImageServiceTest {
         };
         Stream<CategoryRequest> categoryRequestStream = categoryNames.stream().map(name -> new CategoryRequest(name));
         List<Integer> ids = categoryRequestStream.map(categoryRequest -> categoryService.addCategory(categoryRequest)).toList();
+        List<Integer> notExistCategoryIds = new ArrayList<>();
+        notExistCategoryIds.add(1984892);
 
 //        String filePath = getClass().getClassLoader().getResource("test.jpg").getPath();
 //        FileInputStream inputStream = new FileInputStream(filePath);
@@ -96,12 +100,18 @@ class ImageServiceTest {
 //        ImageResponse imageResponse = imageService.uploadImage(new ImageRequest(inputStream, arr.length));
 
         ImageMetaRequest imageMetaRequest = new ImageMetaRequest(userId, "test", "test", "", "", ids);
+        ImageMetaRequest notExistImageMetaRequest = new ImageMetaRequest(notExistUserId, "test", "test", "", "", ids);
+        ImageMetaRequest notExistCategoryImageMetaRequest = new ImageMetaRequest(userId, "test", "test", "", "", notExistCategoryIds);
 
         int id = imageService.addImage(imageMetaRequest);
         Stream<Category> categories = categoryNames.stream().map(categoryName -> categoryRepository.findByName(categoryName).get(0));
 
         Assertions.assertThat(imageRepository.findById(id)).isNotNull();
         Assertions.assertThat(categories.count()).isEqualTo(categoryNames.size());
+        org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class
+                , () -> imageService.addImage(notExistImageMetaRequest));
+        org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class
+                , () -> imageService.addImage(notExistCategoryImageMetaRequest));
     }
 
     // TODO : 외부 의존성 포함해서 테스트할 방법 찾기.

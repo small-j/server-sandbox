@@ -15,5 +15,5 @@ public class ImageMetaRequest {
     String content;
     String key;
     String url;
-    List<Integer> categories;
+    List<Integer> categoryIds;
 }
