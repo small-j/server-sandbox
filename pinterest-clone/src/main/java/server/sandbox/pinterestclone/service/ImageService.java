@@ -79,6 +79,8 @@ public class ImageService {
     public Integer deleteImage(int imageId) {
         log.info("delete image");
         Image image = imageRepository.findById(imageId);
+        validateImage(image);
+
         deleteS3Image(image);
         deleteSaveImage(image);
         imageRepository.deleteImage(image);
@@ -158,7 +160,7 @@ public class ImageService {
     }
 
     private void validateSearchString(String searchStr) {
-        if (searchStr.length() <= 0)
+        if (searchStr.length() <= 0) // TODO: replace, equality로 리펙토링.
             throw new IllegalArgumentException(ErrorMessage.CAN_NOT_SEARCH_STRING.getMessage());
     }
 
