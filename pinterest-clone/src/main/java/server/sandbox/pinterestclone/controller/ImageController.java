@@ -9,6 +9,7 @@ import server.sandbox.pinterestclone.domain.dto.*;
 import server.sandbox.pinterestclone.service.ImageService;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Controller
@@ -44,6 +45,18 @@ public class ImageController {
     ) {
         return ResponseEntity.ok()
                 .body(imageService.findImage(id, userId));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ImageMetaSimpleResponse>> searchImage(@RequestParam(value = "search-word") String searchWord) {
+        return ResponseEntity.ok()
+                .body(imageService.getSearchImages(searchWord));
+    }
+
+    @GetMapping("/main")
+    public ResponseEntity<List<ImageMetaSimpleResponse> > mainImage(@RequestParam(value = "user-id") int id) {
+        return ResponseEntity.ok()
+                .body(imageService.getMainImages(id));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

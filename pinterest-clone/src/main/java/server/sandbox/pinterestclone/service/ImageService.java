@@ -7,11 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import server.sandbox.pinterestclone.domain.*;
 import server.sandbox.pinterestclone.domain.dto.*;
-import server.sandbox.pinterestclone.repository.ImageCategoryRepository;
-import server.sandbox.pinterestclone.repository.ImageRepository;
-import server.sandbox.pinterestclone.repository.SaveImageRepository;
-import server.sandbox.pinterestclone.repository.UserRepository;
-import server.sandbox.pinterestclone.service.exception.ErrorMessage;
+import server.sandbox.pinterestclone.repository.*;
+import server.sandbox.pinterestclone.service.enums.ErrorMessage;
 import server.sandbox.pinterestclone.storage.StorageManager;
 
 import java.io.IOException;
@@ -27,6 +24,7 @@ import java.util.UUID;
 public class ImageService {
 
     private final ImageRepository imageRepository;
+    private final CategoryRepository categoryRepository;
     private final ImageCategoryRepository imageCategoryRepository;
     private final SaveImageRepository saveImageRepository;
     private final UserRepository userRepository;
@@ -48,6 +46,10 @@ public class ImageService {
     public Integer addImage(ImageMetaRequest imageMetaRequest) {
         User user = userRepository.findById(imageMetaRequest.getUserId());
         validateUser(user);
+        imageMetaRequest.getCategoryIds().stream().forEach((categoryId) -> {
+            Category category = categoryRepository.findById(categoryId);
+            validateCategory(category);
+        });
 
         // 이미지 정보 추가
         Image image = Image.builder()
@@ -60,9 +62,8 @@ public class ImageService {
 
         imageRepository.addImage(image);
 
-        // TODO: category exist check.
         // 이미지 카테고리 추가
-        List<ImageCategory> imageCategories = imageMetaRequest.getCategories()
+        List<ImageCategory> imageCategories = imageMetaRequest.getCategoryIds()
                 .stream()
                 .map(categoryId -> ImageCategory.create(image, categoryId))
                 .toList();
@@ -78,6 +79,8 @@ public class ImageService {
     public Integer deleteImage(int imageId) {
         log.info("delete image");
         Image image = imageRepository.findById(imageId);
+        validateImage(image);
+
         deleteS3Image(image);
         deleteSaveImage(image);
         imageRepository.deleteImage(image);
@@ -157,8 +160,13 @@ public class ImageService {
     }
 
     private void validateSearchString(String searchStr) {
-        if (searchStr.length() <= 0)
+        if (searchStr.length() == 0)
             throw new IllegalArgumentException(ErrorMessage.CAN_NOT_SEARCH_STRING.getMessage());
+    }
+
+    private void validateCategory(Category category) {
+        if (ObjectUtils.isEmpty(category))
+            throw new NoSuchElementException(ErrorMessage.NOT_EXIST_CATEGORY.getMessage());
     }
 
     private void deleteS3Image(Image image) {

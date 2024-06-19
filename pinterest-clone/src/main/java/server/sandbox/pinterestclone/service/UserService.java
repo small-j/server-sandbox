@@ -18,7 +18,7 @@ import server.sandbox.pinterestclone.jwt.JwtProvider;
 import server.sandbox.pinterestclone.jwt.dto.JwtTokenHeaderForm;
 import server.sandbox.pinterestclone.jwt.dto.UserInfo;
 import server.sandbox.pinterestclone.repository.UserRepository;
-import server.sandbox.pinterestclone.service.exception.ErrorMessage;
+import server.sandbox.pinterestclone.service.enums.ErrorMessage;
 
 import java.util.List;
 import java.util.NoSuchElementException;

@@ -12,7 +12,7 @@ import server.sandbox.pinterestclone.domain.dto.SaveImageRequest;
 import server.sandbox.pinterestclone.repository.ImageRepository;
 import server.sandbox.pinterestclone.repository.SaveImageRepository;
 import server.sandbox.pinterestclone.repository.UserRepository;
-import server.sandbox.pinterestclone.service.exception.ErrorMessage;
+import server.sandbox.pinterestclone.service.enums.ErrorMessage;
 
 import java.util.NoSuchElementException;
 
