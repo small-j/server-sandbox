@@ -160,7 +160,7 @@ public class ImageService {
     }
 
     private void validateSearchString(String searchStr) {
-        if (searchStr.length() <= 0) // TODO: replace, equality로 리펙토링.
+        if (searchStr.length() == 0)
             throw new IllegalArgumentException(ErrorMessage.CAN_NOT_SEARCH_STRING.getMessage());
     }
 
