@@ -1,4 +1,4 @@
-package server.sandbox.pinterestclone.service.exception;
+package server.sandbox.pinterestclone.service.enums;
 
 import lombok.Getter;
 

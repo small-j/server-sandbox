@@ -8,7 +8,7 @@ import org.springframework.util.ObjectUtils;
 import server.sandbox.pinterestclone.domain.*;
 import server.sandbox.pinterestclone.domain.dto.*;
 import server.sandbox.pinterestclone.repository.*;
-import server.sandbox.pinterestclone.service.exception.ErrorMessage;
+import server.sandbox.pinterestclone.service.enums.ErrorMessage;
 import server.sandbox.pinterestclone.storage.StorageManager;
 
 import java.io.IOException;

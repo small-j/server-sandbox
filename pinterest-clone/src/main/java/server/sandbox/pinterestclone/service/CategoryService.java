@@ -8,7 +8,7 @@ import server.sandbox.pinterestclone.domain.Category;
 import server.sandbox.pinterestclone.domain.dto.CategoryRequest;
 import server.sandbox.pinterestclone.domain.dto.CategoryResponse;
 import server.sandbox.pinterestclone.repository.CategoryRepository;
-import server.sandbox.pinterestclone.service.exception.ErrorMessage;
+import server.sandbox.pinterestclone.service.enums.ErrorMessage;
 
 import java.util.List;
 
