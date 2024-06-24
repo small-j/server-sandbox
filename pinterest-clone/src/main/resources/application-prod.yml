@@ -1,0 +1,24 @@
+server:
+  port: 80
+
+spring:
+  application:
+    name: pinterest-clone
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        auto_quote_keyword: false
+        globally_quoted_identifiers: false
+        format_sql: true
+        show_sql: false
+
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
