@@ -10,6 +10,9 @@
 
 Pinterest의 기능을 일부 구현했습니다.
 
+![pinterest-clone-proj-cloud drawio](https://github.com/small-j/server-sandbox/assets/44703262/f50989fc-2abb-44b3-b303-cde1e52ad25d)
+
+
 ### ERD(v1)
 ![pinterest-clone-project erd](https://github.com/small-j/server-sandbox/assets/44703262/4a5c6cba-1335-4e4b-86a0-fd1d88274de1)
 
