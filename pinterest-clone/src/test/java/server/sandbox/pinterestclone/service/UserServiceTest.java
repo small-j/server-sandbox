@@ -15,8 +15,10 @@ import server.sandbox.pinterestclone.domain.dto.UserRequest;
 import server.sandbox.pinterestclone.jwt.dto.JwtTokenHeaderForm;
 import server.sandbox.pinterestclone.repository.ImageRepository;
 import server.sandbox.pinterestclone.repository.UserRepository;
+import server.sandbox.pinterestclone.service.enums.UserRole;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -91,7 +93,7 @@ class UserServiceTest {
                 .email("smallj")
                 .name("김지윤")
                 .password("1234")
-                .roles("USER")
+                .roles(Arrays.asList(UserRole.USER))
                 .build();
 
         List<Image> images = new ArrayList<>();

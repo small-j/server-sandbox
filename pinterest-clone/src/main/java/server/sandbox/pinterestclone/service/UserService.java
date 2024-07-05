@@ -19,7 +19,9 @@ import server.sandbox.pinterestclone.jwt.dto.JwtTokenHeaderForm;
 import server.sandbox.pinterestclone.jwt.dto.UserInfo;
 import server.sandbox.pinterestclone.repository.UserRepository;
 import server.sandbox.pinterestclone.service.enums.ErrorMessage;
+import server.sandbox.pinterestclone.service.enums.UserRole;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -38,7 +40,7 @@ public class UserService {
                 .email(userRequest.getEmail())
                 .name(userRequest.getName())
                 .password(bCryptPasswordEncoder.encode(userRequest.getPassword()))
-                .roles("USER") // TODO : enum 타입 값으로 리팩토링
+                .roles(Arrays.asList(UserRole.USER))
                 .build();
         try {
             userRepository.register(user);
