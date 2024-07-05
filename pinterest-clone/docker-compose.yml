@@ -1,0 +1,11 @@
+services:
+  mysql:
+    image: mysql:8.0.33
+    ports:
+      - 13306:3306
+    volumes:
+      - /Users/smallj/Desktop/docker/dev/mysql_docker/pinterest_clone_data:/var/lib/mysql:rw
+      - ../../../../db/mysql/init:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: pinterest_clone_pw1234
+      MYSQL_DATABASE: pinterest_clone
