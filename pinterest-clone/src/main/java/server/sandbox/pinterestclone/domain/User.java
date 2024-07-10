@@ -9,7 +9,6 @@ import server.sandbox.pinterestclone.domain.converter.RolesAttributeConverter;
 import server.sandbox.pinterestclone.service.enums.UserRole;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -54,5 +53,4 @@ public class User extends BaseTime {
     public void addImageHistory(UserImageHistory userImageHistory) {
         userImageHistories.add(userImageHistory);
     }
-
 }

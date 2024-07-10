@@ -19,7 +19,7 @@ public class RolesAttributeConverter implements AttributeConverter<List<UserRole
     }
 
     private UserRole convertRoleStringToUserRoleEnum(String role) {
-        if (UserRole.ADMIN.getRole() == role) return UserRole.ADMIN;
-        else  return UserRole.USER;
+        if (UserRole.ADMIN.getRole().equals(role)) return UserRole.ADMIN;
+        else return UserRole.USER;
     }
 }

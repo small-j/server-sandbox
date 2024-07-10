@@ -2,6 +2,7 @@ package server.sandbox.pinterestclone.auth;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import server.sandbox.pinterestclone.domain.User;
 
@@ -21,7 +22,7 @@ public class CustomUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         user.getRoles().forEach(role -> {
-            authorities.add(() -> role.getRole());
+            authorities.add(new SimpleGrantedAuthority(role.getRole()));
         });
 
         return authorities;
