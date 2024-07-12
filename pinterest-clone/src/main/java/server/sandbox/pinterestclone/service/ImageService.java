@@ -83,7 +83,7 @@ public class ImageService {
 
         deleteS3Image(image);
         deleteSaveImage(image);
-        imageRepository.deleteImage(image);
+        imageRepository.deleteImage(image, image.getUser().getEmail());
 
         return imageId;
     }

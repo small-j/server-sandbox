@@ -1,30 +1,35 @@
 package server.sandbox.pinterestclone.auth;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import server.sandbox.pinterestclone.domain.User;
+import server.sandbox.pinterestclone.service.enums.UserRole;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 @Getter
+@Slf4j
 public class CustomUserDetails implements UserDetails {
 
     private User user;
 
+    private final Collection<GrantedAuthority> authorities;
+
     public CustomUserDetails(User user) {
         this.user = user;
+        authorities = new ArrayList<>();
+
+        user.getRoles().forEach(role -> {
+            authorities.add(new SimpleGrantedAuthority(role.getRole()));
+        });
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        user.getRoles().forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority(role.getRole()));
-        });
-
         return authorities;
     }
 
@@ -61,4 +66,13 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public boolean isAdmin() {
+        return this.authorities.contains(new SimpleGrantedAuthority(UserRole.ADMIN.getRole()));
+    }
+
+    public boolean isDataOwner(String dataOwnerEmail) {
+        log.info(dataOwnerEmail);
+        log.info(getUsername());
+        return getUsername().equals(dataOwnerEmail); }
 }
