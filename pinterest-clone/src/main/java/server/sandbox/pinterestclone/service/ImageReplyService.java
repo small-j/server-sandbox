@@ -1,6 +1,7 @@
 package server.sandbox.pinterestclone.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -25,7 +26,8 @@ public class ImageReplyService {
     private final ImageRepository imageRepository;
 
     public int addReply(ImageReplyRequest imageReplyRequest) {
-        User user = userRepository.findById(imageReplyRequest.getUserId());
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findUserByEmail(userEmail);
         Image image = imageRepository.findById(imageReplyRequest.getImageMetaId());
 
         validateUser(user);

@@ -9,6 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ImageReplyRequest {
     int imageMetaId;
-    int userId;
     String content;
 }
