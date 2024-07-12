@@ -40,7 +40,7 @@ public class ImageReplyService {
         ImageReply imageReply = imageReplyRepository.findById(id);
         isExistReply(imageReply);
 
-        imageReplyRepository.deleteReply(imageReply);
+        imageReplyRepository.deleteReply(imageReply, imageReply.getUser().getEmail());
 
         return id;
     }
