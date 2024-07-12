@@ -10,7 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ImageMetaRequest {
-    int userId;
     String title;
     String content;
     String key;
