@@ -231,7 +231,12 @@ class ImageServiceTest {
         Image image = imageRepository.findById(imageId);
         User user = image.getUser();
 
-        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), userId2, "");
+        // SecurityContextHolder에 Authentication 객체 담기.
+        customUserDetails = customUserDetailsService.loadUserByUsername(userRequest2.getEmail());
+        authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), "");
         imageReplyService.addReply(imageReplyRequest);
         imageReplyService.addReply(imageReplyRequest);
 
@@ -389,7 +394,12 @@ class ImageServiceTest {
         Image image = imageRepository.findById(imageId);
         User user = image.getUser();
 
-        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), userId2, "");
+        // SecurityContextHolder에 Authentication 객체 담기.
+        customUserDetails = customUserDetailsService.loadUserByUsername(userRequest2.getEmail());
+        authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), "");
         imageReplyService.addReply(imageReplyRequest);
         imageReplyService.addReply(imageReplyRequest);
 
