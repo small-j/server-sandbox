@@ -165,7 +165,6 @@ class ImageServiceTest {
         ImageMetaRequest imageMetaRequest = new ImageMetaRequest("test", "test", "", "", ids);
         int id = imageService.addImage(imageMetaRequest);
         Image image = imageRepository.findById(id);
-        saveImageService.addSaveImage(new SaveImageRequest(userId, id));
 
         // TODO: 추후 테스트 방법 찾아보기.
 //        // SecurityContextHolder에 Authentication 객체 담기.
@@ -180,6 +179,7 @@ class ImageServiceTest {
         Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        saveImageService.addSaveImage(new SaveImageRequest(id));
         imageService.deleteImage(id);
         Assertions.assertThat(imageRepository.findById(id)).isNull();
         Assertions.assertThat(imageCategoryRepository.findByImage(image).size()).isEqualTo(0);

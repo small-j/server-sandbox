@@ -49,29 +49,19 @@ class SaveImageServiceTest {
                 .key("test")
                 .build();
 
-        int temp = userService.register(userRequest);
+        userService.register(userRequest);
+
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         imageRepository.addImage(image);
 
-        SaveImageRequest saveImageRequest = new SaveImageRequest(temp, image.getId());
+        SaveImageRequest saveImageRequest = new SaveImageRequest(image.getId());
         int id = saveImageService.addSaveImage(saveImageRequest);
 
         Assertions.assertThat(saveImageRepository.findById(id)).isNotNull();
-    }
-
-    @Test
-    void checkNotExistUser() {
-        int tempId = 1;
-        Image image = Image.builder()
-                .title("test")
-                .content("test")
-                .url("test")
-                .key("test")
-                .build();
-
-        imageRepository.addImage(image);
-
-        SaveImageRequest saveImageRequest = new SaveImageRequest(tempId, image.getId());
-        org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class, () -> saveImageService.addSaveImage(saveImageRequest));
     }
 
     @Test
@@ -84,9 +74,14 @@ class SaveImageServiceTest {
                 .password(password)
                 .build();
 
-        int temp = userService.register(userRequest);
+        userService.register(userRequest);
 
-        SaveImageRequest saveImageRequest = new SaveImageRequest(temp, tempId);
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        SaveImageRequest saveImageRequest = new SaveImageRequest(tempId);
         org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class, () -> saveImageService.addSaveImage(saveImageRequest));
     }
 
@@ -106,10 +101,16 @@ class SaveImageServiceTest {
                 .key("test")
                 .build();
 
-        int temp = userService.register(userRequest);
+        userService.register(userRequest);
+
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         imageRepository.addImage(image);
 
-        SaveImageRequest saveImageRequest = new SaveImageRequest(temp, image.getId());
+        SaveImageRequest saveImageRequest = new SaveImageRequest(image.getId());
         saveImageService.addSaveImage(saveImageRequest);
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> saveImageService.addSaveImage(saveImageRequest));
     }
@@ -130,7 +131,7 @@ class SaveImageServiceTest {
                 .key("test")
                 .build();
 
-        int temp = userService.register(userRequest);
+        userService.register(userRequest);
 
         // SecurityContextHolder에 Authentication 객체 담기.
         CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
@@ -139,7 +140,7 @@ class SaveImageServiceTest {
 
         imageRepository.addImage(image);
 
-        SaveImageRequest saveImageRequest = new SaveImageRequest(temp, image.getId());
+        SaveImageRequest saveImageRequest = new SaveImageRequest(image.getId());
         int id = saveImageService.addSaveImage(saveImageRequest);
 
         saveImageService.deleteSaveImage(id);
@@ -163,7 +164,7 @@ class SaveImageServiceTest {
                 .key("test")
                 .build();
 
-        int temp = userService.register(userRequest);
+        userService.register(userRequest);
 
         // SecurityContextHolder에 Authentication 객체 담기.
         CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
@@ -172,7 +173,7 @@ class SaveImageServiceTest {
 
         imageRepository.addImage(image);
 
-        SaveImageRequest saveImageRequest = new SaveImageRequest(temp, image.getId());
+        SaveImageRequest saveImageRequest = new SaveImageRequest(image.getId());
         int id = saveImageService.addSaveImage(saveImageRequest);
 
         saveImageService.deleteSaveImage(id);

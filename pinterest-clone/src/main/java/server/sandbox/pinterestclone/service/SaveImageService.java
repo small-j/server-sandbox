@@ -2,6 +2,7 @@ package server.sandbox.pinterestclone.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -27,7 +28,8 @@ public class SaveImageService {
 
     @Transactional
     public int addSaveImage(SaveImageRequest saveImageRequest) {
-        User user = userRepository.findById(saveImageRequest.getUserId());
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findUserByEmail(userEmail);
         Image image = imageRepository.findById(saveImageRequest.getImageMetaId());
 
         validateUser(user);
