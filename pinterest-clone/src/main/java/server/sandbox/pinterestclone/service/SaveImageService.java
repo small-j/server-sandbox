@@ -46,15 +46,16 @@ public class SaveImageService {
 
     @Transactional
     public int deleteSaveImage(int saveImageId) {
-        isExistSaveImage(saveImageId);
+        SaveImage saveImage = saveImageRepository.findById(saveImageId);
+        isExistSaveImage(saveImage);
         // TODO: save image 조회해서 deleteSaveImage 메서드에 넘기는 방식으로 변경하기.
-        saveImageRepository.deleteSaveImage(saveImageId);
+        saveImageRepository.deleteSaveImage(saveImageId, saveImage.getUser().getEmail());
 
         return saveImageId;
     }
 
-    private void isExistSaveImage(int saveImageId) {
-        if (ObjectUtils.isEmpty(saveImageRepository.findById(saveImageId)))
+    private void isExistSaveImage(SaveImage saveImage) {
+        if (ObjectUtils.isEmpty(saveImage))
             throw new NoSuchElementException(ErrorMessage.NOT_EXIST_SAVE_IMAGE.getMessage());
     }
 

@@ -4,13 +4,17 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import server.sandbox.pinterestclone.auth.CustomUserDetails;
+import server.sandbox.pinterestclone.auth.CustomUserDetailsService;
 import server.sandbox.pinterestclone.domain.Image;
-import server.sandbox.pinterestclone.domain.User;
 import server.sandbox.pinterestclone.domain.dto.SaveImageRequest;
+import server.sandbox.pinterestclone.domain.dto.UserRequest;
 import server.sandbox.pinterestclone.repository.ImageRepository;
 import server.sandbox.pinterestclone.repository.SaveImageRepository;
-import server.sandbox.pinterestclone.repository.UserRepository;
 
 import java.util.NoSuchElementException;
 
@@ -21,17 +25,21 @@ class SaveImageServiceTest {
     @Autowired
     private ImageRepository imageRepository;
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
     @Autowired
     private SaveImageRepository saveImageRepository;
     @Autowired
     private SaveImageService saveImageService;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
     @Test
     void addSaveImage() {
-        User user = User.builder()
-                .email("smallj")
-                .name("김지윤")
+        String password = "1234";
+        UserRequest userRequest = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .password(password)
                 .build();
 
         Image image = Image.builder()
@@ -41,10 +49,10 @@ class SaveImageServiceTest {
                 .key("test")
                 .build();
 
-        userRepository.register(user);
+        int temp = userService.register(userRequest);
         imageRepository.addImage(image);
 
-        SaveImageRequest saveImageRequest = new SaveImageRequest(user.getId(), image.getId());
+        SaveImageRequest saveImageRequest = new SaveImageRequest(temp, image.getId());
         int id = saveImageService.addSaveImage(saveImageRequest);
 
         Assertions.assertThat(saveImageRepository.findById(id)).isNotNull();
@@ -69,21 +77,26 @@ class SaveImageServiceTest {
     @Test
     void checkNotExistImage() {
         int tempId = 1;
-        User user = User.builder()
-                .email("smallj")
-                .name("김지윤")
+        String password = "1234";
+        UserRequest userRequest = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .password(password)
                 .build();
-        userRepository.register(user);
 
-        SaveImageRequest saveImageRequest = new SaveImageRequest(user.getId(), tempId);
+        int temp = userService.register(userRequest);
+
+        SaveImageRequest saveImageRequest = new SaveImageRequest(temp, tempId);
         org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class, () -> saveImageService.addSaveImage(saveImageRequest));
     }
 
     @Test
     void checkSaveImageDuplication() {
-        User user = User.builder()
-                .email("smallj")
-                .name("김지윤")
+        String password = "1234";
+        UserRequest userRequest = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .password(password)
                 .build();
 
         Image image = Image.builder()
@@ -93,19 +106,21 @@ class SaveImageServiceTest {
                 .key("test")
                 .build();
 
-        userRepository.register(user);
+        int temp = userService.register(userRequest);
         imageRepository.addImage(image);
 
-        SaveImageRequest saveImageRequest = new SaveImageRequest(user.getId(), image.getId());
+        SaveImageRequest saveImageRequest = new SaveImageRequest(temp, image.getId());
         saveImageService.addSaveImage(saveImageRequest);
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> saveImageService.addSaveImage(saveImageRequest));
     }
 
     @Test
     void deleteSaveImage() {
-        User user = User.builder()
-                .email("smallj")
-                .name("김지윤")
+        String password = "1234";
+        UserRequest userRequest = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .password(password)
                 .build();
 
         Image image = Image.builder()
@@ -115,10 +130,16 @@ class SaveImageServiceTest {
                 .key("test")
                 .build();
 
-        userRepository.register(user);
+        int temp = userService.register(userRequest);
+
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         imageRepository.addImage(image);
 
-        SaveImageRequest saveImageRequest = new SaveImageRequest(user.getId(), image.getId());
+        SaveImageRequest saveImageRequest = new SaveImageRequest(temp, image.getId());
         int id = saveImageService.addSaveImage(saveImageRequest);
 
         saveImageService.deleteSaveImage(id);
@@ -128,9 +149,11 @@ class SaveImageServiceTest {
 
     @Test
     void deleteNotExistSaveImage() {
-        User user = User.builder()
-                .email("smallj")
-                .name("김지윤")
+        String password = "1234";
+        UserRequest userRequest = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .password(password)
                 .build();
 
         Image image = Image.builder()
@@ -140,10 +163,16 @@ class SaveImageServiceTest {
                 .key("test")
                 .build();
 
-        userRepository.register(user);
+        int temp = userService.register(userRequest);
+
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         imageRepository.addImage(image);
 
-        SaveImageRequest saveImageRequest = new SaveImageRequest(user.getId(), image.getId());
+        SaveImageRequest saveImageRequest = new SaveImageRequest(temp, image.getId());
         int id = saveImageService.addSaveImage(saveImageRequest);
 
         saveImageService.deleteSaveImage(id);

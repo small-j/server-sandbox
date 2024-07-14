@@ -2,6 +2,8 @@ package server.sandbox.pinterestclone.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 import server.sandbox.pinterestclone.domain.Image;
 import server.sandbox.pinterestclone.domain.SaveImage;
@@ -30,7 +32,8 @@ public class SaveImageRepository {
                 .getSingleResult();
     }
 
-    public void deleteSaveImage(int id) {
+    @PreAuthorize("isAuthenticated() and (principal.isDataOwner(#saveImageCreatorEmail) or principal.isAdmin())")
+    public void deleteSaveImage(int id, @P("saveImageCreatorEmail") String saveImageCreatorEmail) {
         em.createQuery("delete from SaveImage si where si.id = :id")
                 .setParameter("id", id)
                 .executeUpdate();
