@@ -3,6 +3,8 @@ package server.sandbox.pinterestclone.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 import server.sandbox.pinterestclone.domain.Image;
 import server.sandbox.pinterestclone.domain.ImageCategory;
@@ -29,7 +31,8 @@ public class ImageRepository {
         return em.find(Image.class, id);
     }
 
-    public void deleteImage(Image image) {
+    @PreAuthorize("isAuthenticated() and (principal.isDataOwner(#imageCreatorEmail) or principal.isAdmin())")
+    public void deleteImage(Image image, @P("imageCreatorEmail") String imageCreatorEmail) {
         em.remove(image);
     }
 

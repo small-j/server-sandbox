@@ -5,7 +5,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import server.sandbox.pinterestclone.auth.CustomUserDetails;
+import server.sandbox.pinterestclone.auth.CustomUserDetailsService;
 import server.sandbox.pinterestclone.domain.Image;
 import server.sandbox.pinterestclone.domain.User;
 import server.sandbox.pinterestclone.domain.dto.LoginInfoRequest;
@@ -15,8 +20,10 @@ import server.sandbox.pinterestclone.domain.dto.UserRequest;
 import server.sandbox.pinterestclone.jwt.dto.JwtTokenHeaderForm;
 import server.sandbox.pinterestclone.repository.ImageRepository;
 import server.sandbox.pinterestclone.repository.UserRepository;
+import server.sandbox.pinterestclone.service.enums.UserRole;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -33,6 +40,8 @@ class UserServiceTest {
     private ImageRepository imageRepository;
     @Autowired
     private SaveImageService saveImageService;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
     @Test
     void register() {
@@ -87,11 +96,11 @@ class UserServiceTest {
 
     @Test
     void getUserInfo() {
-        User user = User.builder()
-                .email("smallj")
-                .name("김지윤")
-                .password("1234")
-                .roles("USER")
+        String password = "1234";
+        UserRequest userRequest = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .password(password)
                 .build();
 
         List<Image> images = new ArrayList<>();
@@ -108,13 +117,19 @@ class UserServiceTest {
                 .key("test")
                 .build());
 
-        userRepository.register(user);
+        int id = userService.register(userRequest);
+
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         images.stream().forEach(image -> imageRepository.addImage(image));
 
-        images.stream().forEach(image -> saveImageService.addSaveImage(new SaveImageRequest(user.getId(), image.getId())));
+        images.stream().forEach(image -> saveImageService.addSaveImage(new SaveImageRequest(image.getId())));
 
-        UserInfoResponse userInfoResponse = userService.getUserInfo(user.getId());
-        Assertions.assertThat(userInfoResponse.getUserResponse().getEmail()).isEqualTo(user.getEmail());
+        UserInfoResponse userInfoResponse = userService.getUserInfo(id);
+        Assertions.assertThat(userInfoResponse.getUserResponse().getEmail()).isEqualTo(userRequest.getEmail());
         Assertions.assertThat(userInfoResponse.getImageUrls().size()).isEqualTo(images.size());
 
         int index = 0;

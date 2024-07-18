@@ -5,9 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import server.sandbox.pinterestclone.domain.converter.RolesAttributeConverter;
+import server.sandbox.pinterestclone.service.enums.UserRole;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Entity
@@ -28,7 +29,8 @@ public class User extends BaseTime {
 
     private String password;
 
-    private String roles;
+    @Convert(converter = RolesAttributeConverter.class)
+    private List<UserRole> roles;
 
     @Builder.Default
     @OneToMany(mappedBy = "user")
@@ -42,13 +44,6 @@ public class User extends BaseTime {
     @OneToMany(mappedBy = "user")
     private List<UserImageHistory> userImageHistories = new ArrayList<>();
 
-    public List<String> getRoleList() {
-        if (this.roles.length() > 0) {
-            return Arrays.asList(this.roles.split(","));
-        }
-        return new ArrayList<>();
-    }
-
     public void addImage(Image image) {
         images.add(image);
     }
@@ -58,5 +53,4 @@ public class User extends BaseTime {
     public void addImageHistory(UserImageHistory userImageHistory) {
         userImageHistories.add(userImageHistory);
     }
-
 }

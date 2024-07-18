@@ -4,13 +4,17 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import server.sandbox.pinterestclone.auth.CustomUserDetails;
+import server.sandbox.pinterestclone.auth.CustomUserDetailsService;
 import server.sandbox.pinterestclone.domain.Image;
-import server.sandbox.pinterestclone.domain.User;
 import server.sandbox.pinterestclone.domain.dto.ImageReplyRequest;
+import server.sandbox.pinterestclone.domain.dto.UserRequest;
 import server.sandbox.pinterestclone.repository.ImageReplyRepository;
 import server.sandbox.pinterestclone.repository.ImageRepository;
-import server.sandbox.pinterestclone.repository.UserRepository;
 
 import java.util.NoSuchElementException;
 
@@ -23,15 +27,19 @@ class ImageReplyServiceTest {
     @Autowired
     private ImageReplyRepository imageReplyRepository;
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
     @Autowired
     private ImageRepository imageRepository;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
     @Test
     void addReply() {
-        User user = User.builder()
-                .email("smallj")
-                .name("김지윤")
+        String password = "1234";
+        UserRequest userRequest = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .password(password)
                 .build();
 
         Image image = Image.builder()
@@ -41,49 +49,46 @@ class ImageReplyServiceTest {
                 .key("test")
                 .build();
 
-        userRepository.register(user);
+        int userId = userService.register(userRequest);
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         imageRepository.addImage(image);
 
-        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), user.getId(), "");
+        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), "");
         int id = imageReplyService.addReply(imageReplyRequest);
-
         Assertions.assertThat(imageReplyRepository.findById(id)).isNotNull();
-    }
-
-    @Test
-    void checkNotExistUser() {
-        int tempId = 1;
-        Image image = Image.builder()
-                .title("test")
-                .content("test")
-                .url("test")
-                .key("test")
-                .build();
-
-        imageRepository.addImage(image);
-
-        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), tempId, "");
-        org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class, () -> imageReplyService.addReply(imageReplyRequest));
     }
 
     @Test
     void checkNotExistImage() {
         int tempId = 1;
-        User user = User.builder()
-                .email("smallj")
-                .name("김지윤")
+        String password = "1234";
+        UserRequest userRequest = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .password(password)
                 .build();
-        userRepository.register(user);
 
-        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(tempId, user.getId(), "");
+        int userId = userService.register(userRequest);
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(tempId, "");
         org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class, () -> imageReplyService.addReply(imageReplyRequest));
     }
 
     @Test
     void deleteReply() {
-        User user = User.builder()
-                .email("smallj")
-                .name("김지윤")
+        String password = "1234";
+        UserRequest userRequest = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .password(password)
                 .build();
 
         Image image = Image.builder()
@@ -93,10 +98,15 @@ class ImageReplyServiceTest {
                 .key("test")
                 .build();
 
-        userRepository.register(user);
+        int userId = userService.register(userRequest);
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         imageRepository.addImage(image);
 
-        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), user.getId(), "");
+        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), "");
         int id = imageReplyService.addReply(imageReplyRequest);
 
         Assertions.assertThat(imageReplyRepository.findById(id)).isNotNull();
@@ -106,9 +116,11 @@ class ImageReplyServiceTest {
 
     @Test
     void deleteNotExistReply() {
-        User user = User.builder()
-                .email("smallj")
-                .name("김지윤")
+        String password = "1234";
+        UserRequest userRequest = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .password(password)
                 .build();
 
         Image image = Image.builder()
@@ -118,10 +130,15 @@ class ImageReplyServiceTest {
                 .key("test")
                 .build();
 
-        userRepository.register(user);
+        int userId = userService.register(userRequest);
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         imageRepository.addImage(image);
 
-        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), user.getId(), "");
+        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), "");
         int id = imageReplyService.addReply(imageReplyRequest);
 
         Assertions.assertThat(imageReplyRepository.findById(id)).isNotNull();

@@ -2,6 +2,7 @@ package server.sandbox.pinterestclone.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -44,7 +45,8 @@ public class ImageService {
 
     @Transactional
     public Integer addImage(ImageMetaRequest imageMetaRequest) {
-        User user = userRepository.findById(imageMetaRequest.getUserId());
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findUserByEmail(userEmail);
         validateUser(user);
         imageMetaRequest.getCategoryIds().stream().forEach((categoryId) -> {
             Category category = categoryRepository.findById(categoryId);
@@ -83,7 +85,7 @@ public class ImageService {
 
         deleteS3Image(image);
         deleteSaveImage(image);
-        imageRepository.deleteImage(image);
+        imageRepository.deleteImage(image, image.getUser().getEmail());
 
         return imageId;
     }

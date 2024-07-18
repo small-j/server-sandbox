@@ -4,7 +4,12 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import server.sandbox.pinterestclone.auth.CustomUserDetails;
+import server.sandbox.pinterestclone.auth.CustomUserDetailsService;
 import server.sandbox.pinterestclone.domain.Category;
 import server.sandbox.pinterestclone.domain.Image;
 import server.sandbox.pinterestclone.domain.User;
@@ -42,6 +47,8 @@ class ImageServiceTest {
     private UserService userService;
     @Autowired
     private ImageReplyService imageReplyService;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
     // TODO : 외부 의존성 포함해서 테스트할 방법 찾기.
 //    @Test
@@ -73,14 +80,19 @@ class ImageServiceTest {
 
     @Test
     void addImage() throws FileNotFoundException, IOException {
+        String password = "1234";
         UserRequest userRequest = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
-                .password("1234")
+                .password(password)
                 .build();
 
         int userId = userService.register(userRequest);
-        int notExistUserId = 1234;
+
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         List<String> categoryNames = new ArrayList<>() {
             {
@@ -99,17 +111,14 @@ class ImageServiceTest {
 //        byte arr[] = inputStream.readAllBytes();
 //        ImageResponse imageResponse = imageService.uploadImage(new ImageRequest(inputStream, arr.length));
 
-        ImageMetaRequest imageMetaRequest = new ImageMetaRequest(userId, "test", "test", "", "", ids);
-        ImageMetaRequest notExistImageMetaRequest = new ImageMetaRequest(notExistUserId, "test", "test", "", "", ids);
-        ImageMetaRequest notExistCategoryImageMetaRequest = new ImageMetaRequest(userId, "test", "test", "", "", notExistCategoryIds);
+        ImageMetaRequest imageMetaRequest = new ImageMetaRequest("test", "test", "", "", ids);
+        ImageMetaRequest notExistCategoryImageMetaRequest = new ImageMetaRequest("test", "test", "", "", notExistCategoryIds);
 
         int id = imageService.addImage(imageMetaRequest);
         Stream<Category> categories = categoryNames.stream().map(categoryName -> categoryRepository.findByName(categoryName).get(0));
 
         Assertions.assertThat(imageRepository.findById(id)).isNotNull();
         Assertions.assertThat(categories.count()).isEqualTo(categoryNames.size());
-        org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class
-                , () -> imageService.addImage(notExistImageMetaRequest));
         org.junit.jupiter.api.Assertions.assertThrows(NoSuchElementException.class
                 , () -> imageService.addImage(notExistCategoryImageMetaRequest));
     }
@@ -120,13 +129,29 @@ class ImageServiceTest {
     * S3에 실제 이미지 업로드, 삭제 로직은 주석 처리한 후 이 테스트를 실행할 수 있다.
     * */
     void deleteImage() {
+        String password = "1234";
+        UserRequest ownerUserRequest = UserRequest.builder()
+                .email("smallj@gmail.com")
+                .name("jiyun")
+                .password(password)
+                .build();
+
         UserRequest userRequest = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
-                .password("1234")
+                .password(password)
                 .build();
 
-        int userId = userService.register(userRequest);
+        UserRequest adminUserRequest = UserRequest.builder()
+                .email("admin@gmail.com")
+                .name("admin")
+                .password(password)
+                .build();
+        // admin 유저에게 어떻게 ADMIN 권한을 부여하지?
+
+        int userId = userService.register(ownerUserRequest);
+        userService.register(userRequest);
+        userService.register(adminUserRequest);
 
         List<String> categoryNames = new ArrayList<>() {
             {
@@ -137,11 +162,24 @@ class ImageServiceTest {
         Stream<CategoryRequest> categoryRequestStream = categoryNames.stream().map(name -> new CategoryRequest(name));
         List<Integer> ids = categoryRequestStream.map(categoryRequest -> categoryService.addCategory(categoryRequest)).toList();
 
-        ImageMetaRequest imageMetaRequest = new ImageMetaRequest(userId, "test", "test", "", "", ids);
+        ImageMetaRequest imageMetaRequest = new ImageMetaRequest("test", "test", "", "", ids);
         int id = imageService.addImage(imageMetaRequest);
         Image image = imageRepository.findById(id);
-        saveImageService.addSaveImage(new SaveImageRequest(userId, id));
 
+        // TODO: 추후 테스트 방법 찾아보기.
+//        // SecurityContextHolder에 Authentication 객체 담기.
+//        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest.getEmail());
+//        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        org.junit.jupiter.api.Assertions.assertThrows(AccessDeniedException.class
+//                , () -> imageService.deleteImage(id));
+
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(ownerUserRequest.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        saveImageService.addSaveImage(new SaveImageRequest(id));
         imageService.deleteImage(id);
         Assertions.assertThat(imageRepository.findById(id)).isNull();
         Assertions.assertThat(imageCategoryRepository.findByImage(image).size()).isEqualTo(0);
@@ -152,20 +190,26 @@ class ImageServiceTest {
 
     @Test
     void findImage() {
+        String password = "1234";
         UserRequest userRequest1 = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
-                .password("1234")
+                .password(password)
                 .build();
 
         UserRequest userRequest2 = UserRequest.builder()
                 .email("aa@gmail.com")
                 .name("jiyun")
-                .password("1234")
+                .password(password)
                 .build();
 
         int userId1 = userService.register(userRequest1);
         int userId2 = userService.register(userRequest2);
+
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest1.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         List<String> categoryNames = new ArrayList<>() {
             {
@@ -176,9 +220,9 @@ class ImageServiceTest {
         Stream<CategoryRequest> categoryRequestStream = categoryNames.stream().map(name -> new CategoryRequest(name));
         List<Integer> categoryIds = categoryRequestStream.map(categoryRequest -> categoryService.addCategory(categoryRequest)).toList();
 
-        ImageMetaRequest imageMetaRequest = new ImageMetaRequest(userId1, "test", "test", "", "", categoryIds);
-        ImageMetaRequest similarCategoryImageMetaRequest1 = new ImageMetaRequest(userId1, "test", "test", "", "", List.of(categoryIds.get(0)));
-        ImageMetaRequest similarCategoryImageMetaRequest2 = new ImageMetaRequest(userId1, "test", "test", "", "", List.of(categoryIds.get(0)));
+        ImageMetaRequest imageMetaRequest = new ImageMetaRequest("test", "test", "", "", categoryIds);
+        ImageMetaRequest similarCategoryImageMetaRequest1 = new ImageMetaRequest("test", "test", "", "", List.of(categoryIds.get(0)));
+        ImageMetaRequest similarCategoryImageMetaRequest2 = new ImageMetaRequest("test", "test", "", "", List.of(categoryIds.get(0)));
 
         int imageId = imageService.addImage(imageMetaRequest);
         int similarCategoryImageId1 = imageService.addImage(similarCategoryImageMetaRequest1);
@@ -187,7 +231,12 @@ class ImageServiceTest {
         Image image = imageRepository.findById(imageId);
         User user = image.getUser();
 
-        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), userId2, "");
+        // SecurityContextHolder에 Authentication 객체 담기.
+        customUserDetails = customUserDetailsService.loadUserByUsername(userRequest2.getEmail());
+        authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), "");
         imageReplyService.addReply(imageReplyRequest);
         imageReplyService.addReply(imageReplyRequest);
 
@@ -209,20 +258,26 @@ class ImageServiceTest {
 
     @Test
     void getMainImages() {
+        String password = "1234";
         UserRequest userRequest1 = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
-                .password("1234")
+                .password(password)
                 .build();
 
         UserRequest userRequest2 = UserRequest.builder()
                 .email("aa@gmail.com")
                 .name("jiyun")
-                .password("1234")
+                .password(password)
                 .build();
 
         int userId1 = userService.register(userRequest1);
         int userId2 = userService.register(userRequest2);
+
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest1.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         List<String> categoryNames = new ArrayList<>() {
             {
@@ -234,9 +289,9 @@ class ImageServiceTest {
         List<Integer> categoryIds = categoryRequestStream.map(categoryRequest -> categoryService.addCategory(categoryRequest)).toList();
 
         // 같은 카테고리를 가진 이미지 3개 생성.
-        ImageMetaRequest imageMetaRequest = new ImageMetaRequest(userId1, "test", "test", "", "", categoryIds);
-        ImageMetaRequest similarCategoryImageMetaRequest1 = new ImageMetaRequest(userId2, "test", "test", "", "", List.of(categoryIds.get(0)));
-        ImageMetaRequest similarCategoryImageMetaRequest2 = new ImageMetaRequest(userId2, "test", "test", "", "", List.of(categoryIds.get(0)));
+        ImageMetaRequest imageMetaRequest = new ImageMetaRequest("test", "test", "", "", categoryIds);
+        ImageMetaRequest similarCategoryImageMetaRequest1 = new ImageMetaRequest("test", "test", "", "", List.of(categoryIds.get(0)));
+        ImageMetaRequest similarCategoryImageMetaRequest2 = new ImageMetaRequest("test", "test", "", "", List.of(categoryIds.get(0)));
 
         imageService.addImage(imageMetaRequest);
         int similarCategoryImageId1 = imageService.addImage(similarCategoryImageMetaRequest1);
@@ -254,20 +309,26 @@ class ImageServiceTest {
 
     @Test
     void getSearchImages() {
+        String password = "1234";
         UserRequest userRequest1 = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
-                .password("1234")
+                .password(password)
                 .build();
 
         UserRequest userRequest2 = UserRequest.builder()
                 .email("aa@gmail.com")
                 .name("jiyun")
-                .password("1234")
+                .password(password)
                 .build();
 
         int userId1 = userService.register(userRequest1);
         int userId2 = userService.register(userRequest2);
+
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest1.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         List<String> categoryNames = new ArrayList<>() {
             {
@@ -279,9 +340,9 @@ class ImageServiceTest {
         List<Integer> categoryIds = categoryRequestStream.map(categoryRequest -> categoryService.addCategory(categoryRequest)).toList();
 
         // 같은 카테고리를 가진 이미지 3개 생성.
-        ImageMetaRequest imageMetaRequest = new ImageMetaRequest(userId1, "test", "test", "", "", categoryIds);
-        ImageMetaRequest similarCategoryImageMetaRequest1 = new ImageMetaRequest(userId2, "test", "test", "", "", List.of(categoryIds.get(0)));
-        ImageMetaRequest similarCategoryImageMetaRequest2 = new ImageMetaRequest(userId2, "스누피 이미지", "", "", "", List.of(categoryIds.get(0)));
+        ImageMetaRequest imageMetaRequest = new ImageMetaRequest("test", "test", "", "", categoryIds);
+        ImageMetaRequest similarCategoryImageMetaRequest1 = new ImageMetaRequest("test", "test", "", "", List.of(categoryIds.get(0)));
+        ImageMetaRequest similarCategoryImageMetaRequest2 = new ImageMetaRequest("스누피 이미지", "", "", "", List.of(categoryIds.get(0)));
 
         imageService.addImage(imageMetaRequest);
         imageService.addImage(similarCategoryImageMetaRequest1);
@@ -298,20 +359,26 @@ class ImageServiceTest {
 
     @Test
     void addUserImageHistory() {
+        String password = "1234";
         UserRequest userRequest1 = UserRequest.builder()
                 .email("smallj@gmail.com")
                 .name("jiyun")
-                .password("1234")
+                .password(password)
                 .build();
 
         UserRequest userRequest2 = UserRequest.builder()
                 .email("aa@gmail.com")
                 .name("jiyun")
-                .password("1234")
+                .password(password)
                 .build();
 
         int userId1 = userService.register(userRequest1);
         int userId2 = userService.register(userRequest2);
+
+        // SecurityContextHolder에 Authentication 객체 담기.
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userRequest1.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         List<String> categoryNames = new ArrayList<>() {
             {
@@ -322,12 +389,17 @@ class ImageServiceTest {
         Stream<CategoryRequest> categoryRequestStream = categoryNames.stream().map(name -> new CategoryRequest(name));
         List<Integer> categoryIds = categoryRequestStream.map(categoryRequest -> categoryService.addCategory(categoryRequest)).toList();
 
-        ImageMetaRequest imageMetaRequest = new ImageMetaRequest(userId1, "test", "test", "", "", categoryIds);
+        ImageMetaRequest imageMetaRequest = new ImageMetaRequest("test", "test", "", "", categoryIds);
         int imageId = imageService.addImage(imageMetaRequest);
         Image image = imageRepository.findById(imageId);
         User user = image.getUser();
 
-        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), userId2, "");
+        // SecurityContextHolder에 Authentication 객체 담기.
+        customUserDetails = customUserDetailsService.loadUserByUsername(userRequest2.getEmail());
+        authentication = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        ImageReplyRequest imageReplyRequest = new ImageReplyRequest(image.getId(), "");
         imageReplyService.addReply(imageReplyRequest);
         imageReplyService.addReply(imageReplyRequest);
 

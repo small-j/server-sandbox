@@ -2,6 +2,8 @@ package server.sandbox.pinterestclone.repository;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 import server.sandbox.pinterestclone.domain.ImageReply;
 
@@ -19,7 +21,8 @@ public class ImageReplyRepository {
         return em.find(ImageReply.class, id);
     }
 
-    public void deleteReply(ImageReply reply) {
+    @PreAuthorize("isAuthenticated() and (principal.isDataOwner(#imageReplyCreatorEmail) or principal.isAdmin())")
+    public void deleteReply(ImageReply reply, @P("imageReplyCreatorEmail") String imageReplyCreatorEmail) {
         em.remove(reply);
     }
 }
