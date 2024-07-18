@@ -72,7 +72,5 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public boolean isDataOwner(String dataOwnerEmail) {
-        log.info(dataOwnerEmail);
-        log.info(getUsername());
         return getUsername().equals(dataOwnerEmail); }
 }
